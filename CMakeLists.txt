@@ -51,6 +51,7 @@ target_sources(${LIB_TARGET} PRIVATE
 )
 
 target_include_directories(${LIB_TARGET} PRIVATE libs)
+target_include_directories(${LIB_TARGET} PRIVATE libs/glm)
 target_include_directories(${LIB_TARGET} PUBLIC src)
 target_compile_definitions(${LIB_TARGET} PUBLIC ${PLATFORM_DEF})
 target_compile_warning(${LIB_TARGET})

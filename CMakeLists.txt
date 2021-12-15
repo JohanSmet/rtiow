@@ -46,6 +46,7 @@ set (LIB_TARGET raytrace)
 add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET} PRIVATE
 	src/raytrace/glm.h
+	src/raytrace/ray.h
 	src/raytrace/raytrace.cpp
 	src/raytrace/raytrace.h
 	src/raytrace/rgb_buffer.h

@@ -10,7 +10,22 @@ using Color = glm::vec3;
 
 namespace {
 
+static inline bool hit_sphere(const glm::vec3 &center, float radius, const Ray &ray) {
+	auto oc = ray.origin() - center;
+
+	auto a = glm::dot(ray.direction(), ray.direction());
+	auto b = 2.0f * glm::dot(oc, ray.direction());
+	auto c = glm::dot(oc, oc) - (radius * radius);
+
+	auto discriminant = (b * b) - (4 * a * c);
+	return discriminant > 0;
+}
+
 static inline Color ray_color([[maybe_unused]] const Ray &ray) {
+	if (hit_sphere(glm::vec3(0, 0, -1), 0.5, ray)) {
+		return Color(1.0f, 0.0f, 0.0f);
+	}
+
 	auto unit_direction = glm::normalize(ray.direction());
 	auto t = 0.5f * (unit_direction.y + 1.0f);
 	return (1.0f-t) * Color(1.0f, 1.0f, 1.0f) + t * Color(0.5f, 0.7f, 1.0f);

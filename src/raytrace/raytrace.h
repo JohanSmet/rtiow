@@ -3,7 +3,6 @@
 #pragma once
 
 #include <memory>
-
 #include "rgb_buffer.h"
 
 namespace rtiow {

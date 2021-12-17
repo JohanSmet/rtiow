@@ -45,15 +45,19 @@ find_package(OpenGL REQUIRED)
 set (LIB_TARGET raytrace)
 add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET} PRIVATE
+	src/raytrace/geometry_base.h
+	src/raytrace/geometry_spheres.cpp
+	src/raytrace/geometry_spheres.h
 	src/raytrace/glm.h
 	src/raytrace/ray.h
 	src/raytrace/raytrace.cpp
 	src/raytrace/raytrace.h
 	src/raytrace/rgb_buffer.h
+	src/raytrace/types.h
 )
 
 target_include_directories(${LIB_TARGET} PRIVATE libs)
-target_include_directories(${LIB_TARGET} PRIVATE libs/glm)
+target_include_directories(${LIB_TARGET} PUBLIC libs/glm)
 target_include_directories(${LIB_TARGET} PUBLIC src)
 target_compile_definitions(${LIB_TARGET} PUBLIC ${PLATFORM_DEF})
 target_compile_warning(${LIB_TARGET})

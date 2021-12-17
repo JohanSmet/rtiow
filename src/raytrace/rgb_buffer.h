@@ -2,8 +2,8 @@
 
 #pragma once
 
+#include "types.h"
 #include <vector>
-#include <cstdint>
 
 namespace rtiow {
 

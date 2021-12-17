@@ -1,8 +1,11 @@
 // raytrace/raytrace.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 
 #include "raytrace.h"
-#include "ray.h"
+
+#include "camera.h"
 #include "geometry_spheres.h"
+#include "ray.h"
+#include "utils.h"
 
 #include <cassert>
 
@@ -23,12 +26,6 @@ static inline color_t ray_color(const Ray &ray, const GeometryBase &world) {
 	return (1.0f-t) * color_t(1.0f, 1.0f, 1.0f) + t * color_t(0.5f, 0.7f, 1.0f);
 }
 
-static inline void write_color(uint8_t **out, const color_t &color) {
-	*(*out)++ = static_cast<uint8_t>(255.999f * color.r);
-	*(*out)++ = static_cast<uint8_t>(255.999f * color.g);
-	*(*out)++ = static_cast<uint8_t>(255.999f * color.b);
-}
-
 } // private namespace
 
 RayTracer::RayTracer(uint32_t output_width, uint32_t output_height) {
@@ -42,7 +39,7 @@ void RayTracer::render() {
 	uint8_t *out = m_output->data();
 
 	// image
-	const auto aspect_ratio = static_cast<float> (m_output->width()) / static_cast<float>(m_output->height());
+	constexpr int samples_per_pixel = 32;
 
 	// world
 	GeometrySpheres world;
@@ -50,24 +47,22 @@ void RayTracer::render() {
 	world.add_sphere(point_t(0.0f, -100.5f, -1.0f), 100.0f);
 
 	// camera
-	auto viewport_height = 2.0f;
-	auto viewport_width = viewport_height * aspect_ratio;
-	auto focal_length = 1.0f;
-
-	auto origin = point_t(0.0f);
-	auto horizontal = vector_t(viewport_width, 0, 0);
-	auto vertical = vector_t(0, viewport_height, 0);
-	auto lower_left = origin - (horizontal / 2.0f) - (vertical / 2.0f) - vector_t(0, 0, focal_length);
+	Camera camera(m_output->width(), m_output->height());
 
 	for (uint32_t row = 0; row < m_output->height(); ++row) {
 		for (uint32_t col = 0; col < m_output->width(); ++col) {
-			auto u = static_cast<float>(col) / static_cast<float>(m_output->width() - 1);
-			auto v = static_cast<float>(row) / static_cast<float>(m_output->height() - 1);
 
-			Ray ray(origin, lower_left + (u * horizontal) + (v * vertical) - origin);
+			color_t pixel_color(0.0f, 0.0f, 0.0f);
 
-			auto pixel_color = ray_color(ray, world);
-			write_color(&out, pixel_color);
+			for (int sample = 0; sample < samples_per_pixel; ++sample) {
+
+				auto u = (static_cast<float>(col) + random_float()) / static_cast<float>(m_output->width() - 1);
+				auto v = (static_cast<float>(row) + random_float()) / static_cast<float>(m_output->height() - 1);
+
+				Ray ray = camera.create_ray(u, v);
+				pixel_color += ray_color(ray, world);
+			}
+			write_color(&out, pixel_color, samples_per_pixel);
 		}
 	}
 }

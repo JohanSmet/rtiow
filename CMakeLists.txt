@@ -45,6 +45,8 @@ find_package(OpenGL REQUIRED)
 set (LIB_TARGET raytrace)
 add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET} PRIVATE
+	src/raytrace/camera.cpp
+	src/raytrace/camera.h
 	src/raytrace/geometry_base.h
 	src/raytrace/geometry_spheres.cpp
 	src/raytrace/geometry_spheres.h
@@ -54,6 +56,7 @@ target_sources(${LIB_TARGET} PRIVATE
 	src/raytrace/raytrace.h
 	src/raytrace/rgb_buffer.h
 	src/raytrace/types.h
+	src/raytrace/utils.h
 )
 
 target_include_directories(${LIB_TARGET} PRIVATE libs)

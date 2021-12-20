@@ -13,12 +13,18 @@ namespace rtiow {
 
 namespace {
 
-static inline color_t ray_color(const Ray &ray, const GeometryBase &world) {
+static inline color_t ray_color(const Ray &ray, const GeometryBase &world, int32_t depth) {
+
+	// don't exceed ray bounce limit
+	if (depth <= 0) {
+		return color_t(0.0f, 0.0f, 0.0f);
+	}
 
 	HitRecord hit;
 
-	if (world.hit(ray, 0, hit)) {
-		return 0.5f * (hit.m_normal + color_t(1.0f, 1.0f, 1.0f));
+	if (world.hit(ray, 0.001f, hit)) {
+		auto target = hit.m_point + hit.m_normal + random_unit_vector();
+		return 0.5f * ray_color(Ray(hit.m_point, target - hit.m_point), world, depth - 1);
 	}
 
 	auto unit_direction = glm::normalize(ray.direction());
@@ -40,6 +46,7 @@ void RayTracer::render() {
 
 	// image
 	constexpr int samples_per_pixel = 32;
+	constexpr int32_t max_ray_bounces = 16;
 
 	// world
 	GeometrySpheres world;
@@ -60,7 +67,7 @@ void RayTracer::render() {
 				auto v = (static_cast<float>(row) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 				Ray ray = camera.create_ray(u, v);
-				pixel_color += ray_color(ray, world);
+				pixel_color += ray_color(ray, world, max_ray_bounces);
 			}
 			write_color(&out, pixel_color, samples_per_pixel);
 		}

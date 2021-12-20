@@ -9,8 +9,8 @@
 
 #include <raytrace/raytrace.h>
 
-constexpr static uint32_t RESOLUTION_X = 1280;
-constexpr static uint32_t RESOLUTION_Y = 720;
+constexpr static uint32_t RESOLUTION_X = 640;
+constexpr static uint32_t RESOLUTION_Y = 360;
 
 constexpr static bool OPENGL_DEBUG = true;
 
@@ -207,7 +207,10 @@ int main() {
 
 	// kick of renderer
 	rtiow::RayTracer ray_tracer(RESOLUTION_X, RESOLUTION_Y);
-	ray_tracer.render();
+
+	std::thread render_thread([&ray_tracer] {
+		ray_tracer.render();
+	});
 
 	while (!glfwWindowShouldClose(window)) {
 

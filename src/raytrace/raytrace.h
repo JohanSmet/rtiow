@@ -4,6 +4,7 @@
 
 #include <memory>
 #include "rgb_buffer.h"
+#include "scene.h"
 
 namespace rtiow {
 
@@ -16,7 +17,7 @@ public:
 	const uint8_t *output_ptr() const {return m_output->data();}
 
 	// rendering
-	void render();
+	void render(const Scene &scene);
 
 
 private:

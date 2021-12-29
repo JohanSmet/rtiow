@@ -7,5 +7,6 @@
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 
 #include <glm/glm.hpp>
+#include <glm/gtc/epsilon.hpp>
 
 #pragma GCC diagnostic pop

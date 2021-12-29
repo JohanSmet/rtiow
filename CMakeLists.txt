@@ -51,10 +51,14 @@ target_sources(${LIB_TARGET} PRIVATE
 	src/raytrace/geometry_spheres.cpp
 	src/raytrace/geometry_spheres.h
 	src/raytrace/glm.h
+	src/raytrace/material.cpp
+	src/raytrace/material.h
 	src/raytrace/ray.h
 	src/raytrace/raytrace.cpp
 	src/raytrace/raytrace.h
 	src/raytrace/rgb_buffer.h
+	src/raytrace/scene.cpp
+	src/raytrace/scene.h
 	src/raytrace/types.h
 	src/raytrace/utils.h
 )

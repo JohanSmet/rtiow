@@ -16,4 +16,6 @@ using color_t = glm::vec3;
 using point_t = glm::vec3;
 using vector_t = glm::vec3;
 
+using material_t = size_t;
+
 } // namespace rtiow

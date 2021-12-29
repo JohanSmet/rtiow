@@ -1,5 +1,4 @@
 // raytrace/geometry_base.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
-
 #include "geometry_spheres.h"
 
 namespace rtiow {
@@ -33,8 +32,9 @@ static inline bool hit_sphere(const Sphere &sphere, const Ray &ray, float t_min,
 	}
 
 	// register hit
-	hit_record.m_at_t  = root;
-	hit_record.m_point = ray.at(root);
+	hit_record.m_at_t		= root;
+	hit_record.m_point		= ray.at(root);
+	hit_record.m_material	= sphere.m_material;
 	hit_record.set_face_normal(ray, (hit_record.m_point - sphere.m_center) / sphere.m_radius);
 
 	return true;
@@ -47,8 +47,8 @@ void GeometrySpheres::clear() {
 	m_spheres.clear();
 }
 
-void GeometrySpheres::add_sphere(const point_t &center, float radius) {
-	m_spheres.push_back(Sphere{center, radius});
+void GeometrySpheres::add_sphere(const point_t &center, float radius, material_t material) {
+	m_spheres.push_back(Sphere{center, radius, material});
 }
 
 bool GeometrySpheres::hit(const Ray &ray, float t_min, HitRecord &hit_record) const {

@@ -6,6 +6,7 @@
 #include "geometry_spheres.h"
 #include "ray.h"
 #include "utils.h"
+#include "scene.h"
 
 #include <cassert>
 
@@ -13,7 +14,7 @@ namespace rtiow {
 
 namespace {
 
-static inline color_t ray_color(const Ray &ray, const GeometryBase &world, int32_t depth) {
+static inline color_t ray_color(const Ray &ray, const Scene &scene, int32_t depth) {
 
 	// don't exceed ray bounce limit
 	if (depth <= 0) {
@@ -22,9 +23,16 @@ static inline color_t ray_color(const Ray &ray, const GeometryBase &world, int32
 
 	HitRecord hit;
 
-	if (world.hit(ray, 0.001f, hit)) {
-		auto target = hit.m_point + hit.m_normal + random_unit_vector();
-		return 0.5f * ray_color(Ray(hit.m_point, target - hit.m_point), world, depth - 1);
+	if (scene.spheres().hit(ray, 0.001f, hit)) {
+		auto material = scene.material(hit.m_material);
+		Ray scattered;
+		color_t attenuation;
+
+		if (material.scatter(ray, hit, attenuation, scattered)) {
+			return attenuation * ray_color(scattered, scene, depth - 1);
+		} else {
+			return color_t(0.0f, 0.0f, 0.0f);
+		}
 	}
 
 	auto unit_direction = glm::normalize(ray.direction());
@@ -40,18 +48,15 @@ RayTracer::RayTracer(uint32_t output_width, uint32_t output_height) {
 	m_output = std::make_unique<RGBBuffer>(output_width, output_height);
 }
 
-void RayTracer::render() {
+void RayTracer::render(const Scene &scene) {
 
 	uint8_t *out = m_output->data();
 
 	// image
 	constexpr int samples_per_pixel = 32;
 	constexpr int32_t max_ray_bounces = 16;
-
-	// world
-	GeometrySpheres world;
-	world.add_sphere(point_t(0.0f, 0.0f, -1.0f), 0.5f);
-	world.add_sphere(point_t(0.0f, -100.5f, -1.0f), 100.0f);
+	constexpr int samples_per_pixel = 64;
+	constexpr int32_t max_ray_bounces = 32;
 
 	// camera
 	Camera camera(m_output->width(), m_output->height());
@@ -67,7 +72,7 @@ void RayTracer::render() {
 				auto v = (static_cast<float>(row) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 				Ray ray = camera.create_ray(u, v);
-				pixel_color += ray_color(ray, world, max_ray_bounces);
+				pixel_color += ray_color(ray, scene, max_ray_bounces);
 			}
 			write_color(&out, pixel_color, samples_per_pixel);
 		}

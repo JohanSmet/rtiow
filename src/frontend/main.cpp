@@ -205,11 +205,19 @@ int main() {
 
 	rtiow::gui::gl_setup_fullscreen_quad();
 
+	// create scene
+	rtiow::Scene scene;
+	auto material_ground = scene.material_create(rtiow::color_t(0.8f, 0.8f, 0.0f));
+	auto material_center = scene.material_create(rtiow::color_t(0.7f, 0.3f, 0.3f));
+
+	scene.sphere_add(rtiow::point_t(0.0f, -100.5f, -1.0f), 100.0f, material_ground);
+	scene.sphere_add(rtiow::point_t(0.0f, 0.0f, -1.0f), 0.5f, material_center);
+
 	// kick of renderer
 	rtiow::RayTracer ray_tracer(RESOLUTION_X, RESOLUTION_Y);
 
-	std::thread render_thread([&ray_tracer] {
-		ray_tracer.render();
+	std::thread render_thread([&ray_tracer, &scene] {
+		ray_tracer.render(scene);
 	});
 
 	while (!glfwWindowShouldClose(window)) {

@@ -47,6 +47,7 @@ add_library(${LIB_TARGET} STATIC)
 target_sources(${LIB_TARGET} PRIVATE
 	src/raytrace/camera.cpp
 	src/raytrace/camera.h
+	src/raytrace/config.h
 	src/raytrace/geometry_base.h
 	src/raytrace/geometry_spheres.cpp
 	src/raytrace/geometry_spheres.h

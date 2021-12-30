@@ -42,21 +42,15 @@ static inline color_t ray_color(const Ray &ray, const Scene &scene, int32_t dept
 
 } // private namespace
 
-RayTracer::RayTracer(uint32_t output_width, uint32_t output_height) {
-	assert(output_width > 0);
-	assert(output_height > 0);
-	m_output = std::make_unique<RGBBuffer>(output_width, output_height);
+RayTracer::RayTracer(const RayTracerConfig &config) : m_config(config) {
+	assert(m_config.m_render_resolution_x > 0);
+	assert(m_config.m_render_resolution_y > 0);
+	m_output = std::make_unique<RGBBuffer>(m_config.m_render_resolution_x, m_config.m_render_resolution_y);
 }
 
 void RayTracer::render(const Scene &scene) {
 
 	uint8_t *out = m_output->data();
-
-	// image
-	constexpr int samples_per_pixel = 32;
-	constexpr int32_t max_ray_bounces = 16;
-	constexpr int samples_per_pixel = 64;
-	constexpr int32_t max_ray_bounces = 32;
 
 	// camera
 	Camera camera(m_output->width(), m_output->height());
@@ -66,15 +60,15 @@ void RayTracer::render(const Scene &scene) {
 
 			color_t pixel_color(0.0f, 0.0f, 0.0f);
 
-			for (int sample = 0; sample < samples_per_pixel; ++sample) {
+			for (uint32_t sample = 0; sample < m_config.m_samples_per_pixel; ++sample) {
 
 				auto u = (static_cast<float>(col) + random_float()) / static_cast<float>(m_output->width() - 1);
 				auto v = (static_cast<float>(row) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 				Ray ray = camera.create_ray(u, v);
-				pixel_color += ray_color(ray, scene, max_ray_bounces);
+				pixel_color += ray_color(ray, scene, m_config.m_max_ray_bounces);
 			}
-			write_color(&out, pixel_color, samples_per_pixel);
+			write_color(&out, pixel_color, m_config.m_samples_per_pixel);
 		}
 	}
 }

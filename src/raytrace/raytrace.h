@@ -3,6 +3,7 @@
 #pragma once
 
 #include <memory>
+#include "config.h"
 #include "rgb_buffer.h"
 #include "scene.h"
 
@@ -11,7 +12,7 @@ namespace rtiow {
 class RayTracer {
 public:
 	// construction
-	RayTracer(uint32_t output_width, uint32_t output_height);
+	RayTracer(const RayTracerConfig &config);
 
 	// data access
 	const uint8_t *output_ptr() const {return m_output->data();}
@@ -19,10 +20,9 @@ public:
 	// rendering
 	void render(const Scene &scene);
 
-
 private:
+	RayTracerConfig				m_config;
 	std::unique_ptr<RGBBuffer>	m_output;
 };
-
 
 }

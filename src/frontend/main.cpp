@@ -1,4 +1,3 @@
-
 #include <cstdlib>
 #include <cstdio>
 #include <chrono>
@@ -9,13 +8,12 @@
 
 #include <raytrace/raytrace.h>
 
-constexpr static uint32_t RESOLUTION_X = 640;
-constexpr static uint32_t RESOLUTION_Y = 360;
-
-constexpr static bool OPENGL_DEBUG = true;
+static constexpr bool OPENGL_DEBUG = true;
 
 static constexpr int MAX_FPS = 60;
 static constexpr int MIN_FRAMETIME_MS = 1000 / MAX_FPS;
+
+static rtiow::RayTracerConfig raytracer_config;
 
 namespace rtiow {
 
@@ -104,7 +102,7 @@ void gl_setup_fullscreen_quad() {
 
 	// create texture
 	glCreateTextures(GL_TEXTURE_2D, 1, &g_texture);
-	glTextureStorage2D(g_texture, 1, GL_RGB8, RESOLUTION_X, RESOLUTION_Y);
+	glTextureStorage2D(g_texture, 1, GL_RGB8, (GLsizei) raytracer_config.m_render_resolution_x, (GLsizei) raytracer_config.m_render_resolution_y);
 	glTextureParameteri(g_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTextureParameteri(g_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
@@ -155,7 +153,10 @@ void gl_setup_fullscreen_quad() {
 
 void gl_display_fullscreen_quad(const uint8_t *img_data) {
 
-	glTextureSubImage2D(g_texture, 0, 0, 0, RESOLUTION_X, RESOLUTION_Y, GL_RGB, GL_UNSIGNED_BYTE, img_data);
+	glTextureSubImage2D(g_texture, 0, 0, 0,
+						(GLsizei) raytracer_config.m_render_resolution_x, (GLsizei) raytracer_config.m_render_resolution_y,
+						GL_RGB, GL_UNSIGNED_BYTE,
+						img_data);
 
 	glBindVertexArray(g_vao);
 	glBindTextureUnit(0, g_texture);
@@ -181,9 +182,11 @@ int main() {
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, OPENGL_DEBUG);
 
-    auto window = glfwCreateWindow(RESOLUTION_X, RESOLUTION_Y, "RayTracing In One Weekend", NULL, NULL);
-    if (!window)
-    {
+    auto window = glfwCreateWindow((int) raytracer_config.m_render_resolution_x,
+								   (int) raytracer_config.m_render_resolution_y,
+								   "RayTracing In One Weekend",
+								   NULL, NULL);
+    if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -214,7 +217,8 @@ int main() {
 	scene.sphere_add(rtiow::point_t(0.0f, 0.0f, -1.0f), 0.5f, material_center);
 
 	// kick of renderer
-	rtiow::RayTracer ray_tracer(RESOLUTION_X, RESOLUTION_Y);
+	rtiow::RayTracerConfig config;
+	rtiow::RayTracer ray_tracer(config);
 
 	std::thread render_thread([&ray_tracer, &scene] {
 		ray_tracer.render(scene);
@@ -227,7 +231,7 @@ int main() {
 		 // setup rendering
 		constexpr float clear_color[4] = {0.3f, 0.3f, 0.3f, 1.0f};
 		glClipControl(GL_LOWER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
-		glViewportIndexedf(0, 0, 0, RESOLUTION_X, RESOLUTION_Y);
+		glViewportIndexedf(0, 0, 0, float(raytracer_config.m_render_resolution_x), float(raytracer_config.m_render_resolution_y));
 		glClearNamedFramebufferfv(0, GL_COLOR, 0, clear_color);
 
 		// dislay rendered image

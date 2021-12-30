@@ -42,7 +42,7 @@ inline vector_t random_unit_vector() {
 	return glm::normalize(random_vector_in_unit_sphere());
 }
 
-inline void write_color(uint8_t **out, const color_t &color, int32_t samples_per_pixel) {
+inline void write_color(uint8_t **out, const color_t &color, uint32_t samples_per_pixel) {
 
 	auto scale = 1.0f / static_cast<float>(samples_per_pixel);
 	auto r = glm::clamp(sqrtf(color.r * scale), 0.0f, 0.999f);

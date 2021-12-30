@@ -12,36 +12,6 @@
 
 namespace rtiow {
 
-namespace {
-
-static inline color_t ray_color(const Ray &ray, const Scene &scene, int32_t depth) {
-
-	// don't exceed ray bounce limit
-	if (depth <= 0) {
-		return color_t(0.0f, 0.0f, 0.0f);
-	}
-
-	HitRecord hit;
-
-	if (scene.spheres().hit(ray, 0.001f, hit)) {
-		auto material = scene.material(hit.m_material);
-		Ray scattered;
-		color_t attenuation;
-
-		if (material.scatter(ray, hit, attenuation, scattered)) {
-			return attenuation * ray_color(scattered, scene, depth - 1);
-		} else {
-			return color_t(0.0f, 0.0f, 0.0f);
-		}
-	}
-
-	auto unit_direction = glm::normalize(ray.direction());
-	auto t = 0.5f * (unit_direction.y + 1.0f);
-	return (1.0f-t) * color_t(1.0f, 1.0f, 1.0f) + t * color_t(0.5f, 0.7f, 1.0f);
-}
-
-} // private namespace
-
 RayTracer::RayTracer(const RayTracerConfig &config) : m_config(config) {
 	assert(m_config.m_render_resolution_x > 0);
 	assert(m_config.m_render_resolution_y > 0);
@@ -66,7 +36,7 @@ void RayTracer::render(const Scene &scene) {
 				auto v = (static_cast<float>(row) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 				Ray ray = camera.create_ray(u, v);
-				pixel_color += ray_color(ray, scene, m_config.m_max_ray_bounces);
+				pixel_color += scene.ray_color(ray, m_config.m_max_ray_bounces);
 			}
 			write_color(&out, pixel_color, m_config.m_samples_per_pixel);
 		}

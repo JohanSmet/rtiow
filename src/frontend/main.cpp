@@ -210,11 +210,15 @@ int main() {
 
 	// create scene
 	rtiow::Scene scene;
-	auto material_ground = scene.material_create(rtiow::color_t(0.8f, 0.8f, 0.0f));
-	auto material_center = scene.material_create(rtiow::color_t(0.7f, 0.3f, 0.3f));
+	auto material_ground = scene.material_create(rtiow::color_t(0.8f, 0.8f, 0.0f), 0.0f);
+	auto material_center = scene.material_create(rtiow::color_t(0.7f, 0.3f, 0.3f), 0.0f);
+	auto material_left = scene.material_create(rtiow::color_t(0.8f, 0.8f, 0.8f), 1.0f);
+	auto material_right = scene.material_create(rtiow::color_t(0.8f, 0.6f, 0.2f), 0.25f);
 
 	scene.sphere_add(rtiow::point_t(0.0f, -100.5f, -1.0f), 100.0f, material_ground);
 	scene.sphere_add(rtiow::point_t(0.0f, 0.0f, -1.0f), 0.5f, material_center);
+	scene.sphere_add(rtiow::point_t(-1.0f, 0.0f, -1.0f), 0.5f, material_left);
+	scene.sphere_add(rtiow::point_t(1.0f, 0.0f, -1.0f), 0.5f, material_right);
 
 	// kick of renderer
 	rtiow::RayTracerConfig config;

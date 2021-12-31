@@ -18,12 +18,14 @@ RayTracer::RayTracer(const RayTracerConfig &config) : m_config(config) {
 	m_output = std::make_unique<RGBBuffer>(m_config.m_render_resolution_x, m_config.m_render_resolution_y);
 }
 
-void RayTracer::render(const Scene &scene) {
+void RayTracer::render(Scene &scene) {
 
 	uint8_t *out = m_output->data();
 
 	// camera
 	Camera camera(m_output->width(), m_output->height());
+
+	scene.setup_rendering(m_config);
 
 	for (uint32_t row = 0; row < m_output->height(); ++row) {
 		for (uint32_t col = 0; col < m_output->width(); ++col) {
@@ -36,7 +38,7 @@ void RayTracer::render(const Scene &scene) {
 				auto v = (static_cast<float>(row) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 				Ray ray = camera.create_ray(u, v);
-				pixel_color += scene.ray_color(ray, m_config.m_max_ray_bounces);
+				pixel_color += scene.ray_color(ray, sample, m_config.m_max_ray_bounces);
 			}
 			write_color(&out, pixel_color, m_config.m_samples_per_pixel);
 		}

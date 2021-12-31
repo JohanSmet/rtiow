@@ -18,7 +18,7 @@ public:
 	const uint8_t *output_ptr() const {return m_output->data();}
 
 	// rendering
-	void render(const Scene &scene);
+	void render(Scene &scene);
 
 private:
 	RayTracerConfig				m_config;

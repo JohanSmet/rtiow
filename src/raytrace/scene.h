@@ -26,7 +26,8 @@ public:
 	void sphere_add(const point_t &center, float radius, material_t material);
 
 	// ray tracing
-	color_t ray_color(const Ray &ray, int32_t bounce_depth) const;
+	void    setup_rendering(const struct RayTracerConfig &config);
+	color_t ray_color(const Ray &ray, uint32_t sample_sequence, int32_t bounce_depth) const;
 
 private:
 	GeometrySpheres			m_spheres;

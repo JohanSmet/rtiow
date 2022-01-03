@@ -13,6 +13,7 @@ class RayTracer {
 public:
 	// construction
 	RayTracer(const RayTracerConfig &config);
+	~RayTracer();
 
 	// data access
 	const uint8_t *output_ptr() const {return m_output->data();}
@@ -21,8 +22,9 @@ public:
 	void render(Scene &scene);
 
 private:
-	RayTracerConfig				m_config;
-	std::unique_ptr<RGBBuffer>	m_output;
+	RayTracerConfig						m_config;
+	std::unique_ptr<RGBBuffer>			m_output;
+	std::unique_ptr<class ThreadPool>	m_thread_pool;
 };
 
 }

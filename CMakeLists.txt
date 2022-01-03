@@ -60,6 +60,7 @@ target_sources(${LIB_TARGET} PRIVATE
 	src/raytrace/rgb_buffer.h
 	src/raytrace/scene.cpp
 	src/raytrace/scene.h
+	src/raytrace/thread_pool.h
 	src/raytrace/types.h
 	src/raytrace/utils.h
 )

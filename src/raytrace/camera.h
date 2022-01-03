@@ -11,7 +11,7 @@ public:
 	Camera(uint32_t img_width, uint32_t img_height);
 
 	// ray generation
-	inline Ray create_ray(float u, float v) {
+	inline Ray create_ray(float u, float v) const {
 		return Ray(m_origin, m_lower_left + (u * m_vec_horizontal) + (v * m_vec_vertical) - m_origin);
 	}
 

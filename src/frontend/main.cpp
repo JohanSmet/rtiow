@@ -1,3 +1,4 @@
+#include <array>
 #include <cstdlib>
 #include <cstdio>
 #include <chrono>

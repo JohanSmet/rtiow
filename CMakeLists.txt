@@ -75,6 +75,7 @@ target_compile_warning(${LIB_TARGET})
 set (FRONTEND_TARGET rtiow_gl)
 add_executable(${FRONTEND_TARGET})
 target_sources(${FRONTEND_TARGET} PRIVATE
+	libs/argh/argh.h
 	src/frontend/main.cpp
 )
 target_include_directories(${FRONTEND_TARGET} PRIVATE libs)

@@ -76,7 +76,10 @@ set (FRONTEND_TARGET rtiow_gl)
 add_executable(${FRONTEND_TARGET})
 target_sources(${FRONTEND_TARGET} PRIVATE
 	libs/argh/argh.h
+
 	src/frontend/main.cpp
+	src/frontend/output_opengl.cpp
+	src/frontend/output_opengl.h
 )
 target_include_directories(${FRONTEND_TARGET} PRIVATE libs)
 target_link_libraries(${FRONTEND_TARGET} PRIVATE ${LIB_TARGET})

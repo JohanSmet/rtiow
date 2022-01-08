@@ -31,7 +31,9 @@ void RayTracer::render(Scene &scene) {
 	// Creating and destroying the threadpool per render might seem like a bad idea, and it is.
 	// But destroying the pool is currently the only way to wait until rendering is done :-(
 	// And besides, render() isn't going to be called multiple times in the current setup
-	auto num_workers = ((ThreadPool::hardware_concurrency() - m_config.m_threads_ignore) * m_config.m_threads_use_percent) / 100;
+	auto num_workers = (m_config.m_num_render_workers > 0) ?
+							m_config.m_num_render_workers :
+							((ThreadPool::hardware_concurrency() - m_config.m_threads_ignore) * m_config.m_threads_use_percent) / 100;
 	m_thread_pool = std::make_unique<ThreadPool>(std::max(1, num_workers));
 
 	// setup camera

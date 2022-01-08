@@ -15,6 +15,7 @@ struct RayTracerConfig {
 	int32_t		m_threads_ignore = 1;				// number of hardware threads to ignore and leave available for other system tasks
 	int32_t		m_threads_use_percent = 100;		// percentage of available hardware threads to actually use for raytracing
 													//	=> render thread pool size = (system hardware threads - ignore) * use_percent / 100
+	int32_t		m_num_render_workers = 0;			// manually override computed number of workers when <> 0
 };
 
 

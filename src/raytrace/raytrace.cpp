@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <cassert>
 #include <chrono>
+#include <cinttypes>
 
 namespace rtiow {
 
@@ -77,7 +78,7 @@ void RayTracer::render(Scene &scene) {
 	m_thread_pool = nullptr;
 
 	auto finish_time = std::chrono::system_clock::now();
-	std::printf("Rendering took %ld ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count());
+	std::printf("Rendering took %" PRIu64 "ms\n", std::chrono::duration_cast<std::chrono::milliseconds>(finish_time - start_time).count());
 }
 
 } // namespace rtiow

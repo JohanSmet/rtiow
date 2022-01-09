@@ -59,3 +59,30 @@ jobs:
               with:
                   name: binary_win
                   path: ${{runner.workspace}}/_build/Release/rtiow_gl.exe
+
+    build_macos:
+        runs-on: macOS-latest
+
+        steps:
+            - uses: actions/checkout@v1
+              with:
+                submodules: true
+
+            - name: Create build directory
+              run: cmake -E make_directory ${{runner.workspace}}/_build
+
+            - name: Run CMake
+              shell: bash
+              working-directory: ${{runner.workspace}}/_build
+              run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+
+            - name: Build
+              shell: bash
+              working-directory: ${{runner.workspace}}/_build
+              run: cmake --build . --config $BUILD_TYPE
+
+            - name: Archive binary
+              uses: actions/upload-artifact@v2
+              with:
+                  name: binary_macos
+                  path: ${{runner.workspace}}/_build/rtiow_gl

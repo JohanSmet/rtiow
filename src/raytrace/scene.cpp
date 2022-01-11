@@ -4,9 +4,16 @@
 
 namespace rtiow {
 
-material_t Scene::material_create(const color_t &albedo, float metalness) {
+material_t Scene::material_create_diffuse(const color_t &albedo) {
 	auto result = m_materials.size();
-	m_materials.emplace_back(albedo, metalness);
+	m_materials.emplace_back(albedo);
+	return result;
+}
+
+material_t Scene::material_create_specular(	const color_t &albedo,
+											float specular_chance, const color_t &specular_color, float specular_roughness) {
+	auto result = m_materials.size();
+	m_materials.emplace_back(albedo, specular_chance, specular_color, specular_roughness);
 	return result;
 }
 

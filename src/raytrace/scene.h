@@ -11,10 +11,11 @@ namespace rtiow {
 class Scene {
 public:
 	// construction
-	Scene() {};
+	Scene() = default;
 
 	// material
-	material_t material_create(const color_t &albedo, float metalness);
+	material_t material_create_diffuse(const color_t &albedo);
+	material_t material_create_specular(const color_t &albedo, float specular_chance, const color_t &specular_color, float specular_roughness);
 
 	const Material &material(material_t material) const {
 		assert(material < m_materials.size());

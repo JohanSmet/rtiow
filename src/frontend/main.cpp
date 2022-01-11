@@ -10,6 +10,7 @@
 static constexpr int MAX_FPS = 60;
 static constexpr int MIN_FRAMETIME_MS = 1000 / MAX_FPS;
 
+// command line arguments
 using argh_list_t = std::initializer_list<const char *const>;
 static constexpr argh_list_t ARG_RESOLUTION_X = {"-x", "--resolution-x"};
 static constexpr argh_list_t ARG_RESOLUTION_Y = {"-y", "--resolution-y"};
@@ -18,6 +19,23 @@ static constexpr argh_list_t ARG_MAX_RAY_BOUNCES = {"-b", "--max-ray-bounces"};
 static constexpr argh_list_t ARG_RENDER_WORKERS = {"-w", "--render-workers"};
 static constexpr argh_list_t ARG_THREADS_IGNORE = {"--threads-ignore"};
 static constexpr argh_list_t ARG_THREADS_PERCENT = {"--threads-percentage"};
+
+namespace rtiow {
+
+void construct_scene_01(Scene &scene) {
+
+	auto material_ground = scene.material_create_diffuse({0.8f, 0.8f, 0.0f});
+	auto material_center = scene.material_create_diffuse({0.7f, 0.3f, 0.3f});
+	auto material_left   = scene.material_create_specular({0.8f, 0.8f, 0.8f}, 1.00f, {0.8f, 0.8f, 0.8f}, 0.00f);
+	auto material_right  = scene.material_create_specular({0.8f, 0.6f, 0.2f}, 0.25f, {0.8f, 0.6f, 0.2f}, 0.75f);
+
+	scene.sphere_add({ 0.0f, -100.5f, -1.0f}, 100.0f, material_ground);
+	scene.sphere_add({ 0.0f,    0.0f, -1.0f},   0.5f, material_center);
+	scene.sphere_add({-1.0f,    0.0f, -1.0f},   0.5f, material_left);
+	scene.sphere_add({ 1.0f,    0.0f, -1.0f},   0.5f, material_right);
+}
+
+} // namespace rtiow
 
 int main(int argc, char *argv[]) {
 
@@ -45,20 +63,11 @@ int main(int argc, char *argv[]) {
 
 	// create scene
 	rtiow::Scene scene;
-	auto material_ground = scene.material_create(rtiow::color_t(0.8f, 0.8f, 0.0f), 0.0f);
-	auto material_center = scene.material_create(rtiow::color_t(0.7f, 0.3f, 0.3f), 0.0f);
-	auto material_left = scene.material_create(rtiow::color_t(0.8f, 0.8f, 0.8f), 1.0f);
-	auto material_right = scene.material_create(rtiow::color_t(0.8f, 0.6f, 0.2f), 0.25f);
-
-	scene.sphere_add(rtiow::point_t(0.0f, -100.5f, -1.0f), 100.0f, material_ground);
-	scene.sphere_add(rtiow::point_t(0.0f, 0.0f, -1.0f), 0.5f, material_center);
-	scene.sphere_add(rtiow::point_t(-1.0f, 0.0f, -1.0f), 0.5f, material_left);
-	scene.sphere_add(rtiow::point_t(1.0f, 0.0f, -1.0f), 0.5f, material_right);
+	rtiow::construct_scene_01(scene);
 
 	// create output window
 	rtiow::gui::OutputOpengl window;
 	window.setup(int32_t(raytracer_config.m_render_resolution_x), int32_t(raytracer_config.m_render_resolution_y));
-
 
 	// kick of renderer
 	rtiow::RayTracer ray_tracer(raytracer_config);

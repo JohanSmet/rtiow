@@ -14,13 +14,7 @@ void Scene::sphere_add(const point_t &center, float radius, material_t material)
 	m_spheres.add_sphere(center, radius, material);
 }
 
-void Scene::setup_rendering(const RayTracerConfig &config) {
-	for (auto &mat : m_materials) {
-		mat.setup_rendering(config);
-	}
-}
-
-color_t Scene::ray_color(const Ray &ray, uint32_t sample_sequence, int32_t bounce_depth) const {
+color_t Scene::ray_color(const Ray &ray, int32_t bounce_depth) const {
 
 	// don't exceed ray bounce limit
 	if (bounce_depth <= 0) {
@@ -30,9 +24,17 @@ color_t Scene::ray_color(const Ray &ray, uint32_t sample_sequence, int32_t bounc
 	HitRecord hit;
 
 	if (m_spheres.hit(ray, 0.001f, hit)) {
-		return material(hit.m_material).color_at_hit(*this, ray, hit, sample_sequence, bounce_depth - 1);
+		color_t attenuation;
+		Ray next_ray;
+
+		if (material(hit.m_material).scatter(ray, hit, attenuation, next_ray)) {
+			return attenuation * ray_color(next_ray, bounce_depth - 1);
+		} else {
+			return color_t(0.0f, 0.0f, 0.0f);
+		}
 	}
 
+	// no hit => environment
 	auto unit_direction = glm::normalize(ray.direction());
 	auto t = 0.5f * (unit_direction.y + 1.0f);
 	return (1.0f-t) * color_t(1.0f, 1.0f, 1.0f) + t * color_t(0.5f, 0.7f, 1.0f);

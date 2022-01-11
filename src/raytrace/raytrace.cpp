@@ -40,9 +40,6 @@ void RayTracer::render(Scene &scene) {
 	// setup camera
 	Camera camera(m_output->width(), m_output->height());
 
-	// setup rendering (e.g. precompute material values)
-	scene.setup_rendering(m_config);
-
 	// split scene into quads and render them in parallel
 	constexpr uint32_t CHUNK_SIZE = 128;
 
@@ -65,7 +62,7 @@ void RayTracer::render(Scene &scene) {
 							auto v = (static_cast<float>(y) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 							Ray ray = camera.create_ray(u, v);
-							pixel_color += scene.ray_color(ray, sample, m_config.m_max_ray_bounces);
+							pixel_color += scene.ray_color(ray, m_config.m_max_ray_bounces);
 						}
 						write_color(&out, pixel_color, m_config.m_samples_per_pixel);
 					}

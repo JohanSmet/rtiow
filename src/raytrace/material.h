@@ -12,17 +12,11 @@ public:
 		m_albedo(albedo), m_metalness(metalness) {
 	}
 
-	// rendering
-	void    setup_rendering(const struct RayTracerConfig &config);
-	color_t color_at_hit(const class Scene &scene,
-						 const Ray &ray_in, const struct HitRecord &hit,
-						 uint32_t sample_sequence, int32_t bounce_depth) const;
+	bool scatter(const Ray &ray_in, const struct HitRecord &hit, color_t &attenuation, Ray &scattered_ray) const;
 
 private:
 	color_t		m_albedo;
 	float		m_metalness;
-
-	uint32_t	m_specular_samples;
 };
 
 } // namespace rtiow

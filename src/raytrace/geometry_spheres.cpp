@@ -47,7 +47,7 @@ void GeometrySpheres::clear() {
 	m_spheres.clear();
 }
 
-void GeometrySpheres::add_sphere(const point_t &center, float radius, material_t material) {
+void GeometrySpheres::add_sphere(const point_t &center, float radius, material_id_t material) {
 	m_spheres.push_back(Sphere{center, radius, material});
 }
 

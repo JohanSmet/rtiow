@@ -9,7 +9,7 @@ namespace rtiow {
 struct Sphere {
 	point_t		m_center;
 	float		m_radius;
-	material_t	m_material;
+	material_id_t	m_material;
 };
 
 class GeometrySpheres: public GeometryBase {
@@ -22,7 +22,7 @@ public:
 
 	// object interface
 	void clear();
-	void add_sphere(const point_t &center, float radius, material_t material);
+	void add_sphere(const point_t &center, float radius, material_id_t material);
 
 	// hit detection
 	bool hit(const Ray &ray, float t_min, HitRecord &hit_record) const;

@@ -10,7 +10,7 @@ namespace rtiow {
 struct HitRecord {
 	glm::vec3	m_point;
 	glm::vec3	m_normal;
-	material_t	m_material;
+	material_id_t	m_material;
 	float		m_at_t;
 	bool		m_front_face;
 

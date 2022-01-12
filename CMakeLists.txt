@@ -52,8 +52,6 @@ target_sources(${LIB_TARGET} PRIVATE
 	src/raytrace/geometry_spheres.cpp
 	src/raytrace/geometry_spheres.h
 	src/raytrace/glm.h
-	src/raytrace/material.cpp
-	src/raytrace/material.h
 	src/raytrace/ray.h
 	src/raytrace/raytrace.cpp
 	src/raytrace/raytrace.h

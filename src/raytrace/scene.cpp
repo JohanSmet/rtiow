@@ -4,17 +4,37 @@
 
 namespace rtiow {
 
+material_t Scene::material_create(
+		const color_t &albedo,
+		float specular_chance, const color_t &specular_color, float specular_roughness,
+		float index_of_refraction,
+		float refraction_chance, const color_t &refraction_color, float refraction_roughness) {
+	m_materials.emplace_back(
+			albedo,
+			specular_chance, specular_color, specular_roughness,
+			index_of_refraction,
+			refraction_chance, refraction_color, refraction_roughness);
+	return m_materials.size() - 1;
+}
+
 material_t Scene::material_create_diffuse(const color_t &albedo) {
-	auto result = m_materials.size();
 	m_materials.emplace_back(albedo);
-	return result;
+	return m_materials.size() - 1;
 }
 
 material_t Scene::material_create_specular(	const color_t &albedo,
 											float specular_chance, const color_t &specular_color, float specular_roughness) {
-	auto result = m_materials.size();
 	m_materials.emplace_back(albedo, specular_chance, specular_color, specular_roughness);
-	return result;
+	return m_materials.size() - 1;
+}
+
+material_t Scene::material_create_dielectric(
+		const color_t &albedo, float index_of_refraction,
+		float refraction_chance, const color_t &refraction_color, float refraction_roughness) {
+	return material_create(albedo,
+							0.0f, {0.0f, 0.0f, 0.0f}, 0.0f,
+							index_of_refraction,
+							refraction_chance, refraction_color, refraction_roughness);
 }
 
 void Scene::sphere_add(const point_t &center, float radius, material_t material) {

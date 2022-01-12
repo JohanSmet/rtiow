@@ -14,8 +14,15 @@ public:
 	Scene() = default;
 
 	// material
+	material_t material_create(const color_t &albedo,
+							   float specular_chance, const color_t &specular_color, float specular_roughness,
+							   float index_of_refraction,
+							   float refraction_chance, const color_t &refraction_color, float refraction_roughness);
+
 	material_t material_create_diffuse(const color_t &albedo);
 	material_t material_create_specular(const color_t &albedo, float specular_chance, const color_t &specular_color, float specular_roughness);
+	material_t material_create_dielectric(const color_t &albedo, float index_of_refraction,
+										  float refraction_chance, const color_t &refraction_color, float refraction_roughness);
 
 	const Material &material(material_t material) const {
 		assert(material < m_materials.size());

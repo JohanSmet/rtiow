@@ -22,9 +22,7 @@ public:
 		m_refraction_roughness(refraction_roughness) {
 	}
 
-	bool scatter(const Ray &ray_in, const struct HitRecord &hit, color_t &attenuation, Ray &scattered_ray) const;
-
-private:
+public:
 	color_t		m_albedo;
 
 	float		m_specular_chance;			// chance that the reflection will choose the specular path instead of the diffuse (0 .. 1)

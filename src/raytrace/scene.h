@@ -34,7 +34,7 @@ public:
 	void sphere_add(const point_t &center, float radius, material_t material);
 
 	// ray tracing
-	color_t ray_color(const Ray &ray, int32_t bounce_depth) const;
+	bool hit_detection(const Ray &ray, HitRecord &hit) const;
 
 private:
 	GeometrySpheres			m_spheres;

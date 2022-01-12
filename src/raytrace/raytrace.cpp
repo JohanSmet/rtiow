@@ -25,6 +25,58 @@ RayTracer::RayTracer(const RayTracerConfig &config) : m_config(config) {
 RayTracer::~RayTracer() {
 }
 
+static inline color_t environment_color(const Ray &ray) {
+	auto unit_direction = glm::normalize(ray.direction());
+	auto t = 0.5f * (unit_direction.y + 1.0f);
+	return (1.0f-t) * color_t(1.0f, 1.0f, 1.0f) + t * color_t(0.5f, 0.7f, 1.0f);
+}
+
+color_t ray_color(const Scene &scene, const Ray &start_ray, int32_t max_ray_bounces) {
+
+	auto result = color_t{0.0f, 0.0f, 0.0f};
+	auto attenuation = color_t{1.0f, 1.0f, 1.0f};
+	auto ray = start_ray;
+
+	for (int32_t bounce = 0; bounce < max_ray_bounces; ++bounce) {
+
+		// shoot the ray into the scene
+		HitRecord hit;
+
+		if (!scene.hit_detection(ray, hit)) {
+			// ray missed, stop tracing
+			result += environment_color(ray) * attenuation;
+			break;
+		}
+
+		auto mat = scene.material(hit.m_material);
+
+		// decide how this ray will be reflected
+		bool choose_specular = random_float() < mat.m_specular_chance;
+
+		if (!choose_specular) {
+			// diffuse reflection
+			auto diffuse_dir = glm::normalize(hit.m_normal + random_unit_vector());
+			if (glm::all(glm::epsilonEqual(diffuse_dir, vector_t(0.0f, 0.0f, 0.0f), 1e-6f))) {
+				diffuse_dir = hit.m_normal;
+			}
+			ray = Ray(hit.m_point, diffuse_dir);
+			attenuation *= mat.m_albedo;
+		} else {
+			// specular reflection
+			auto reflected_dir = glm::reflect(glm::normalize(ray.direction()), hit.m_normal);
+			ray = Ray(hit.m_point, reflected_dir + mat.m_specular_roughness * random_vector_in_unit_sphere());
+
+			if (glm::dot(ray.direction(), hit.m_normal) > 0) {
+				attenuation *= mat.m_specular_color;
+			} else {
+				return color_t(0.0f, 0.0f, 0.0f);
+			}
+		}
+	}
+
+	return result;
+}
+
 void RayTracer::render(Scene &scene) {
 
 	auto start_time = std::chrono::system_clock::now();
@@ -62,7 +114,7 @@ void RayTracer::render(Scene &scene) {
 							auto v = (static_cast<float>(y) + random_float()) / static_cast<float>(m_output->height() - 1);
 
 							Ray ray = camera.create_ray(u, v);
-							pixel_color += scene.ray_color(ray, m_config.m_max_ray_bounces);
+							pixel_color += ray_color(scene, ray, m_config.m_max_ray_bounces);
 						}
 						write_color(&out, pixel_color, m_config.m_samples_per_pixel);
 					}

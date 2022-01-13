@@ -12,7 +12,7 @@ public:
 
 	// ray generation
 	inline Ray create_ray(float u, float v) const {
-		return Ray(m_origin, m_lower_left + (u * m_vec_horizontal) + (v * m_vec_vertical) - m_origin);
+		return Ray(m_origin, glm::normalize(m_lower_left + (u * m_vec_horizontal) + (v * m_vec_vertical) - m_origin));
 	}
 
 private:

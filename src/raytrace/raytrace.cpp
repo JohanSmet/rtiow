@@ -31,29 +31,85 @@ static inline color_t environment_color(const Ray &ray) {
 	return (1.0f-t) * color_t(1.0f, 1.0f, 1.0f) + t * color_t(0.5f, 0.7f, 1.0f);
 }
 
+static inline float reflectance(float cosine, float ref_idx) {
+	// Use Schlick's approximation for reflectance.
+	auto r0 = (1.0f - ref_idx) / (1.0f + ref_idx);
+	r0 = r0 * r0;
+	return r0 + (1 - r0) * glm::pow((1.0f - cosine), 5.0f);
+}
+
+static inline color_t specular_reflect(Ray &ray, const HitRecord &hit, const Material &mat) {
+
+	auto reflected_dir = glm::reflect(ray.direction(), hit.m_normal);
+	ray = Ray(hit.m_point, glm::normalize(reflected_dir + mat.m_specular_roughness * random_vector_in_unit_sphere()));
+
+	if (glm::dot(ray.direction(), hit.m_normal) > 0) {
+		return mat.m_specular_color;
+	} else {
+		return {0.0f, 0.0f, 0.0f};
+	}
+
+}
+
 color_t ray_color(const Scene &scene, const Ray &start_ray, int32_t max_ray_bounces) {
 
 	auto result = color_t{0.0f, 0.0f, 0.0f};
 	auto attenuation = color_t{1.0f, 1.0f, 1.0f};
 	auto ray = start_ray;
 
-	for (int32_t bounce = 0; bounce < max_ray_bounces; ++bounce) {
+	for (int32_t bounce = 0; bounce <= max_ray_bounces; ++bounce) {
 
 		// shoot the ray into the scene
 		HitRecord hit;
 
+		// stop tracing if the ray didn't hit anything
 		if (!scene.hit_detection(ray, hit)) {
-			// ray missed, stop tracing
 			result += environment_color(ray) * attenuation;
 			break;
 		}
 
 		auto mat = scene.material(hit.m_material);
 
-		// decide how this ray will be reflected
-		bool choose_specular = random_float() < mat.m_specular_chance;
+		// absorption if hit is from the inside of the object
+		if (!hit.m_front_face) {
+			attenuation *= glm::exp(-mat.m_refraction_color * hit.m_at_t);
+		}
 
-		if (!choose_specular) {
+		// decide how this ray will be reflected
+		float ray_probability = 1.0f;
+		bool  choose_specular = false;
+		bool  choose_refraction = false;
+
+		float random_chance = random_float();
+
+		if (random_chance < mat.m_specular_chance) {
+			choose_specular = true;
+			ray_probability = mat.m_specular_chance;
+		} else if (random_chance < mat.m_specular_chance + mat.m_refraction_chance) {
+			choose_refraction = true;
+			ray_probability = mat.m_refraction_chance;
+		} else {
+			ray_probability = 1.0f - mat.m_specular_chance - mat.m_refraction_chance;
+		}
+		ray_probability = glm::max(ray_probability, 0.001f);
+
+		if (choose_specular) {
+			// specular reflection
+			attenuation *= specular_reflect(ray, hit, mat);
+		} else if (choose_refraction) {
+			// refraction
+			float refraction_ratio = hit.m_front_face ? 1.0f / mat.m_index_of_refraction : mat.m_index_of_refraction;
+			float cos_theta = glm::min(glm::dot(-ray.direction(), hit.m_normal), 1.0f);
+            float sin_theta = glm::sqrt(1.0f - cos_theta*cos_theta);
+
+            if (refraction_ratio * sin_theta > 1.0f || reflectance(cos_theta, refraction_ratio) > ray_probability) {
+				// refraction not possible or looking at steep angle so material becomes reflective
+				attenuation *= specular_reflect(ray, hit, mat);
+			} else {
+				auto refraction_dir = glm::refract(ray.direction(), hit.m_normal, refraction_ratio);
+				ray = Ray(hit.m_point, glm::normalize(refraction_dir + mat.m_refraction_roughness * random_vector_in_unit_sphere()));
+			}
+		} else {
 			// diffuse reflection
 			auto diffuse_dir = glm::normalize(hit.m_normal + random_unit_vector());
 			if (glm::all(glm::epsilonEqual(diffuse_dir, vector_t(0.0f, 0.0f, 0.0f), 1e-6f))) {
@@ -61,17 +117,11 @@ color_t ray_color(const Scene &scene, const Ray &start_ray, int32_t max_ray_boun
 			}
 			ray = Ray(hit.m_point, diffuse_dir);
 			attenuation *= mat.m_albedo;
-		} else {
-			// specular reflection
-			auto reflected_dir = glm::reflect(glm::normalize(ray.direction()), hit.m_normal);
-			ray = Ray(hit.m_point, reflected_dir + mat.m_specular_roughness * random_vector_in_unit_sphere());
-
-			if (glm::dot(ray.direction(), hit.m_normal) > 0) {
-				attenuation *= mat.m_specular_color;
-			} else {
-				return color_t(0.0f, 0.0f, 0.0f);
-			}
 		}
+
+		// divide attentuation by the probability that this ray-type was chosen to make sure
+		// they count the same in the final average
+		attenuation /= ray_probability;
 	}
 
 	return result;

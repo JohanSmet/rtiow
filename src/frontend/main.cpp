@@ -26,7 +26,7 @@ void construct_scene_01(Scene &scene) {
 
 	auto material_ground = scene.material_create_diffuse({0.8f, 0.8f, 0.0f});
 	auto material_center = scene.material_create_diffuse({0.7f, 0.3f, 0.3f});
-	auto material_left   = scene.material_create_specular({0.8f, 0.8f, 0.8f}, 1.00f, {0.8f, 0.8f, 0.8f}, 0.00f);
+	auto material_left   = scene.material_create_dielectric({0.8f, 0.8f, 0.8f}, 1.3f, 1.00f, {0.5f, 0.5f, 0.5f}, 0.00f);
 	auto material_right  = scene.material_create_specular({0.8f, 0.6f, 0.2f}, 0.25f, {0.8f, 0.6f, 0.2f}, 0.75f);
 
 	scene.sphere_add({ 0.0f, -100.5f, -1.0f}, 100.0f, material_ground);

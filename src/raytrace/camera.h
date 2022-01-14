@@ -8,7 +8,11 @@ namespace rtiow {
 class Camera {
 public:
 	// construction
-	Camera(uint32_t img_width, uint32_t img_height);
+	Camera( float aspect_ratio = 16.0f / 9.0f,
+			float vertical_fov = 90.0f,
+			point_t look_from = {0.0f, 0.0f, 0.0f},
+			point_t look_at = {0.0f, 0.0f, -1.0f},
+			vector_t v_up = {0.0f, 1.0f, 0.0f});
 
 	// ray generation
 	inline Ray create_ray(float u, float v) const {

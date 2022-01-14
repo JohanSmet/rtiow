@@ -2,6 +2,7 @@
 #pragma once
 
 #include "geometry_spheres.h"
+#include "camera.h"
 
 #include <vector>
 
@@ -33,13 +34,15 @@ public:
 
 	material_id_t material_create_diffuse(const color_t &albedo);
 	material_id_t material_create_specular(const color_t &albedo, float specular_chance, const color_t &specular_color, float specular_roughness);
-	material_id_t material_create_dielectric(const color_t &albedo, float index_of_refraction,
-										  float refraction_chance, const color_t &refraction_color, float refraction_roughness);
 
 	const Material &material(material_id_t material) const {
 		assert(material < m_materials.size());
 		return m_materials[material];
 	}
+
+	// camera
+	void setup_camera(float aspect_ratio, float vertical_fov, point_t look_from, point_t look_at, vector_t v_up);
+	const Camera &camera() const {return m_camera;}
 
 	// geometry
 	const GeometrySpheres &spheres() const {return m_spheres;}
@@ -52,6 +55,7 @@ private:
 	Material &material_create_default();
 
 private:
+	Camera					m_camera;
 	GeometrySpheres			m_spheres;
 	std::vector<Material>	m_materials;
 };

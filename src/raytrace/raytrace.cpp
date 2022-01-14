@@ -2,7 +2,6 @@
 
 #include "raytrace.h"
 
-#include "camera.h"
 #include "geometry_spheres.h"
 #include "ray.h"
 #include "utils.h"
@@ -57,7 +56,7 @@ color_t ray_color(const Scene &scene, const Ray &start_ray, int32_t max_ray_boun
 	auto attenuation = color_t{1.0f, 1.0f, 1.0f};
 	auto ray = start_ray;
 
-	for (int32_t bounce = 0; bounce <= max_ray_bounces; ++bounce) {
+	for (int32_t bounce = 0; bounce < max_ray_bounces; ++bounce) {
 
 		// shoot the ray into the scene
 		HitRecord hit;
@@ -139,9 +138,6 @@ void RayTracer::render(Scene &scene) {
 							((ThreadPool::hardware_concurrency() - m_config.m_threads_ignore) * m_config.m_threads_use_percent) / 100;
 	m_thread_pool = std::make_unique<ThreadPool>(std::max(1, num_workers));
 
-	// setup camera
-	Camera camera(m_output->width(), m_output->height());
-
 	// split scene into quads and render them in parallel
 	constexpr uint32_t CHUNK_SIZE = 128;
 
@@ -163,7 +159,7 @@ void RayTracer::render(Scene &scene) {
 							auto u = (static_cast<float>(x) + random_float()) / static_cast<float>(m_output->width() - 1);
 							auto v = (static_cast<float>(y) + random_float()) / static_cast<float>(m_output->height() - 1);
 
-							Ray ray = camera.create_ray(u, v);
+							Ray ray = scene.camera().create_ray(u, v);
 							pixel_color += ray_color(scene, ray, m_config.m_max_ray_bounces);
 						}
 						write_color(&out, pixel_color, m_config.m_samples_per_pixel);

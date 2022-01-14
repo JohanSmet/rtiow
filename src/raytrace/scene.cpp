@@ -53,13 +53,8 @@ material_id_t Scene::material_create_specular(	const color_t &albedo,
 	return m_materials.size() - 1;
 }
 
-material_id_t Scene::material_create_dielectric(
-		const color_t &albedo, float index_of_refraction,
-		float refraction_chance, const color_t &refraction_color, float refraction_roughness) {
-	return material_create(albedo,
-							0.0f, {0.0f, 0.0f, 0.0f}, 0.0f,
-							index_of_refraction,
-							refraction_chance, refraction_color, refraction_roughness);
+void Scene::setup_camera(float aspect_ratio, float vertical_fov, point_t look_from, point_t look_at, vector_t v_up) {
+	m_camera = Camera(aspect_ratio, vertical_fov, look_from, look_at, v_up);
 }
 
 void Scene::sphere_add(const point_t &center, float radius, material_id_t material) {

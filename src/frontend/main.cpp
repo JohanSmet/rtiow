@@ -20,19 +20,31 @@ static constexpr argh_list_t ARG_RENDER_WORKERS = {"-w", "--render-workers"};
 static constexpr argh_list_t ARG_THREADS_IGNORE = {"--threads-ignore"};
 static constexpr argh_list_t ARG_THREADS_PERCENT = {"--threads-percentage"};
 
+static rtiow::RayTracerConfig raytracer_config;
+
 namespace rtiow {
 
 void construct_scene_01(Scene &scene) {
 
 	auto material_ground = scene.material_create_diffuse({0.8f, 0.8f, 0.0f});
 	auto material_center = scene.material_create_diffuse({0.7f, 0.3f, 0.3f});
-	auto material_left   = scene.material_create_dielectric({0.8f, 0.8f, 0.8f}, 1.3f, 1.00f, {0.5f, 0.5f, 0.5f}, 0.00f);
-	auto material_right  = scene.material_create_specular({0.8f, 0.6f, 0.2f}, 0.25f, {0.8f, 0.6f, 0.2f}, 0.75f);
+	auto material_left   = scene.material_create(	{0.8f, 0.8f, 0.8f},							// albedo
+													0.0f, {1.0f, 1.0f, 1.0f}, 0.01f,			// specular
+													1.5f, 1.00f, {1.0f, 1.0f, 1.0f}, 0.01f);	// refraction
+	auto material_right  = scene.material_create_specular({0.8f, 0.6f, 0.2f}, 1.00f, {0.8f, 0.6f, 0.2f}, 0.20f);
 
 	scene.sphere_add({ 0.0f, -100.5f, -1.0f}, 100.0f, material_ground);
 	scene.sphere_add({ 0.0f,    0.0f, -1.0f},   0.5f, material_center);
 	scene.sphere_add({-1.0f,    0.0f, -1.0f},   0.5f, material_left);
+	scene.sphere_add({-1.0f,    0.0f, -1.0f},  -0.45f, material_left);
 	scene.sphere_add({ 1.0f,    0.0f, -1.0f},   0.5f, material_right);
+
+	scene.setup_camera( float(raytracer_config.m_render_resolution_x) / float(raytracer_config.m_render_resolution_y),
+						20.0f,
+						{-2.0f, 2.0f, 1.0f},
+						{0.0f, 0.0f, -1.0f},
+						{0.0f, 1.0f, 0.0f}
+	);
 }
 
 } // namespace rtiow
@@ -51,8 +63,6 @@ int main(int argc, char *argv[]) {
 	cmd_line.parse(argc, argv);
 
 	// fill out configuration structure
-	rtiow::RayTracerConfig raytracer_config;
-
 	cmd_line(ARG_RESOLUTION_X, raytracer_config.m_render_resolution_x) >> raytracer_config.m_render_resolution_x;
 	cmd_line(ARG_RESOLUTION_Y, raytracer_config.m_render_resolution_y) >> raytracer_config.m_render_resolution_y;
 	cmd_line(ARG_SAMPLES_PER_PIXEL, raytracer_config.m_samples_per_pixel) >> raytracer_config.m_samples_per_pixel;

@@ -41,7 +41,8 @@ public:
 	}
 
 	// camera
-	void setup_camera(float aspect_ratio, float vertical_fov, point_t look_from, point_t look_at, vector_t v_up);
+	void setup_camera(float aspect_ratio, float vertical_fov, point_t look_from, point_t look_at, vector_t v_up,
+					  float aperture = 0.0f, float focus_distance = 0.0f);
 	const Camera &camera() const {return m_camera;}
 
 	// geometry

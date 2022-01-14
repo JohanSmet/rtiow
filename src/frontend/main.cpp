@@ -41,9 +41,10 @@ void construct_scene_01(Scene &scene) {
 
 	scene.setup_camera( float(raytracer_config.m_render_resolution_x) / float(raytracer_config.m_render_resolution_y),
 						20.0f,
-						{-2.0f, 2.0f, 1.0f},
+						{3.0f, 3.0f, 2.0f},
 						{0.0f, 0.0f, -1.0f},
-						{0.0f, 1.0f, 0.0f}
+						{0.0f, 1.0f, 0.0f},
+						1.0f
 	);
 }
 

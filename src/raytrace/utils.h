@@ -38,6 +38,15 @@ inline vector_t random_vector_in_unit_sphere() {
 	}
 }
 
+inline vector_t random_vector_in_unit_disc() {
+	while (true) {
+		auto v = vector_t{random_float(-1.0f, 1.0f), random_float(-1.0f, 1.0f), 0.0f};
+		if (glm::dot(v, v) < 1.0f) {
+			return v;
+		}
+	}
+}
+
 inline vector_t random_unit_vector() {
 	return glm::normalize(random_vector_in_unit_sphere());
 }

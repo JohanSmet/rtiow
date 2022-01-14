@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <raytrace/raytrace.h>
+#include <raytrace/utils.h>
 #include <argh/argh.h>
 
 #include "output_opengl.h"
@@ -19,6 +20,7 @@ static constexpr argh_list_t ARG_MAX_RAY_BOUNCES = {"-b", "--max-ray-bounces"};
 static constexpr argh_list_t ARG_RENDER_WORKERS = {"-w", "--render-workers"};
 static constexpr argh_list_t ARG_THREADS_IGNORE = {"--threads-ignore"};
 static constexpr argh_list_t ARG_THREADS_PERCENT = {"--threads-percentage"};
+static constexpr argh_list_t ARG_SCENE = {"--scene"};
 
 static rtiow::RayTracerConfig raytracer_config;
 
@@ -48,6 +50,59 @@ void construct_scene_01(Scene &scene) {
 	);
 }
 
+void construct_scene_02(Scene &scene) {
+
+	auto mat_ground = scene.material_create_diffuse({0.5f, 0.5f, 0.5f});
+    scene.sphere_add({0.0f, -1000.0f, 0.0f}, 1000.0f, mat_ground);
+
+    for (float a = -11; a < 11; a++) {
+        for (float b = -11; b < 11; b++) {
+            auto choose_mat = random_float();
+            point_t center(a + 0.9f*random_float(), 0.2f, b + 0.9f * random_float());
+
+            if ((center - point_t(4, 0.2, 0)).length() > 0.9) {
+                if (choose_mat < 0.8f) {
+                    // diffuse
+                    auto albedo = random_vector() * random_vector();
+					auto mat_sphere = scene.material_create_diffuse(albedo);
+					scene.sphere_add(center, 0.2f, mat_sphere);
+                } else if (choose_mat < 0.95f) {
+                    // metal
+                    auto albedo = random_vector(0.5f, 1.0f);
+                    auto fuzz = random_float(0.0f, 0.5f);
+					auto mat_sphere = scene.material_create_specular(albedo, 1.0f, {1.0f, 1.0f, 1.0f}, fuzz);
+					scene.sphere_add(center, 0.2f, mat_sphere);
+                } else {
+                    // glass
+					auto mat_sphere = scene.material_create({0.0f, 0.0, 0.0f},							// albedo,
+															0.0f, {1.0f, 1.0f, 1.0f}, 0.00f,			// specular
+															1.5f, 1.0f, {1.0f, 1.0f, 1.0f}, 0.00f);		// refraction
+					scene.sphere_add(center, 0.2f, mat_sphere);
+                }
+            }
+        }
+    }
+
+	auto material_1 = scene.material_create({0.0f, 0.0, 0.0f},							// albedo,
+										   0.0f, {1.0f, 1.0f, 1.0f}, 0.00f,				// specular
+										   1.5f, 1.0f, {1.0f, 1.0f, 1.0f}, 0.00f);		// refraction
+    scene.sphere_add({0.0f, 1.0f, 0.0f}, 1.0f, material_1);
+
+	auto material_2 = scene.material_create_diffuse({0.4f, 0.2f, 0.1f});
+    scene.sphere_add({-4.0f, 1.0f, 0.0f}, 1.0f, material_2);
+
+	auto material_3 = scene.material_create_specular({0.7f, 0.6f, 0.5f}, 1.0f, {0.7f, 0.6f, 0.5f}, 0.0f);
+    scene.sphere_add({4.0f, 1.0f, 0.0f}, 1.0f, material_3);
+
+	scene.setup_camera( float(raytracer_config.m_render_resolution_x) / float(raytracer_config.m_render_resolution_y),
+						20.0f,
+						{13.0f, 2.0f, 3.0f},
+						{0.0f, 0.0f, 0.0f},
+						{0.0f, 1.0f, 0.0f},
+						0.1f
+	);
+}
+
 } // namespace rtiow
 
 int main(int argc, char *argv[]) {
@@ -61,6 +116,7 @@ int main(int argc, char *argv[]) {
 	cmd_line.add_params(ARG_RENDER_WORKERS);
 	cmd_line.add_params(ARG_THREADS_IGNORE);
 	cmd_line.add_params(ARG_THREADS_PERCENT);
+	cmd_line.add_params(ARG_SCENE);
 	cmd_line.parse(argc, argv);
 
 	// fill out configuration structure
@@ -72,9 +128,17 @@ int main(int argc, char *argv[]) {
 	cmd_line(ARG_THREADS_IGNORE, raytracer_config.m_threads_ignore) >> raytracer_config.m_threads_ignore;
 	cmd_line(ARG_THREADS_PERCENT, raytracer_config.m_threads_use_percent) >> raytracer_config.m_threads_use_percent;
 
+	int choose_scene;
+	cmd_line(ARG_SCENE, 1) >> choose_scene;
+
 	// create scene
 	rtiow::Scene scene;
-	rtiow::construct_scene_01(scene);
+
+	if (choose_scene == 2) {
+		rtiow::construct_scene_02(scene);
+	} else {
+		rtiow::construct_scene_01(scene);
+	}
 
 	// create output window
 	rtiow::gui::OutputOpengl window;

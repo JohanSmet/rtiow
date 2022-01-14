@@ -81,10 +81,10 @@ color_t ray_color(const Scene &scene, const Ray &start_ray, int32_t max_ray_boun
 
 		float random_chance = random_float();
 
-		if (random_chance < mat.m_specular_chance) {
+		if (random_chance <= mat.m_specular_chance) {
 			choose_specular = true;
 			ray_probability = mat.m_specular_chance;
-		} else if (random_chance < mat.m_specular_chance + mat.m_refraction_chance) {
+		} else if (random_chance <= mat.m_specular_chance + mat.m_refraction_chance) {
 			choose_refraction = true;
 			ray_probability = mat.m_refraction_chance;
 		} else {

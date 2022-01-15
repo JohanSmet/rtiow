@@ -1,6 +1,9 @@
 name: rtiow build
 
-on: [push]
+on:
+  push:
+    paths-ignore:
+      - '**.md'
 
 env:
     BUILD_TYPE: Release

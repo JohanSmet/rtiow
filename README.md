@@ -4,7 +4,7 @@ Yet another C++ implementation of the book [Ray Tracing In One Weekend](https://
 
 Or, more accurately, ray tracing in a spare hour here and there. Seemed like a fun thing to do when Advent of Code 2021 wrapped up. And besides, a ray tracer, just like a 6502 emulator, is something you've got write at least once in your lifetime, right?
 
-Nothing really special here, I followed the book quite closely but I tried to avoid using inheritance hierarchies and virtual functions. I don't have multiple material classes, just one that has parameters to control the amount of diffuse/specular reflection and refraction (inspired by articles on [The blog at the bottom of the sea](https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/).
+Nothing really special here, I followed the book quite closely but I tried to avoid using inheritance hierarchies and virtual functions. I don't have multiple material classes, just one that has parameters to control the amount of diffuse/specular reflection and refraction (inspired by articles on [The blog at the bottom of the sea](https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/)).
 
 ## Future Goals
 - Add some kind of denoising.

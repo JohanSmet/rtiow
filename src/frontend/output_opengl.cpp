@@ -2,8 +2,10 @@
 #include "output_opengl.h"
 
 #include <array>
-#include <cstdlib>
 #include <cstdio>
+#include <iterator>
+#include <string>
+#include <fstream>
 
 namespace rtiow {
 
@@ -63,31 +65,6 @@ static constexpr std::array<uint16_t, 6> FSQ_INDICES {
 	1, 2, 3
 };
 
-static constexpr const GLchar *FSQ_VERTEX_SHADER =
-R"(#version 450
-	layout (location = 0) in vec3 in_position;
-	layout (location = 1) in vec2 in_tex_coord;
-
-	out vec2 vs_tex_coord;
-
-	void main() {
-		gl_Position = vec4(in_position, 1.0f);
-		vs_tex_coord = in_tex_coord;
-	}
-)";
-
-static constexpr const GLchar *FSQ_FRAGMENT_SHADER =
-R"(#version 450
-	in vec2 vs_tex_coord;
-	layout (binding = 0) uniform sampler2D tex;
-
-	layout (location = 0) out vec4 out_color;
-
-	void main() {
-		out_color = texture(tex, vs_tex_coord);
-	}
-)";
-
 static GLuint g_texture = GL_INVALID_INDEX;
 static GLuint g_vbo = GL_INVALID_INDEX;
 static GLuint g_ibo = GL_INVALID_INDEX;
@@ -95,6 +72,21 @@ static GLuint g_vao = GL_INVALID_INDEX;
 static GLuint g_vertex_shader = GL_INVALID_INDEX;
 static GLuint g_fragment_shader = GL_INVALID_INDEX;
 static GLuint g_shader = GL_INVALID_INDEX;
+
+void gl_load_shader_source(GLuint shader, const char *file_path) {
+
+	std::ifstream file(file_path);
+	if (!file.is_open()) {
+		fprintf(stderr, "Error opening shader source (%s)\n", file_path);
+		exit(-1);
+	}
+
+	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
+	const GLchar *shader_source = content.c_str();
+
+	glShaderSource(shader, 1, &shader_source, nullptr);
+}
 
 void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
 
@@ -134,12 +126,12 @@ void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
 	// shaders
 	// >> vertex shader
 	g_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(g_vertex_shader, 1, &FSQ_VERTEX_SHADER, nullptr);
+	gl_load_shader_source(g_vertex_shader, "src/frontend/shaders/vertex.glsl");
 	glCompileShader(g_vertex_shader);
 
 	// >> fragment shader
 	g_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(g_fragment_shader, 1, &FSQ_FRAGMENT_SHADER, nullptr);
+	gl_load_shader_source(g_fragment_shader, "src/frontend/shaders/fragment_plain.glsl");
 	glCompileShader(g_fragment_shader);
 
 	// >> program

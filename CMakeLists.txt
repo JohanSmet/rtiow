@@ -76,6 +76,8 @@ target_sources(${FRONTEND_TARGET} PRIVATE
 	libs/argh/argh.h
 
 	src/frontend/main.cpp
+	src/frontend/opengl_uniform_buffer.cpp
+	src/frontend/opengl_uniform_buffer.h
 	src/frontend/output_opengl.cpp
 	src/frontend/output_opengl.h
 )

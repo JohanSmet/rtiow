@@ -13,10 +13,10 @@ namespace gui {
 
 namespace {
 
-#ifdef DEBUG
-static constexpr bool OPENGL_DEBUG = true;
-#else
+#ifdef NDEBUG
 static constexpr bool OPENGL_DEBUG = false;
+#else
+static constexpr bool OPENGL_DEBUG = true;
 #endif
 
 [[maybe_unused]]

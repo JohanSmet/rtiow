@@ -1,11 +1,10 @@
 // frontend/output_opengl.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 #include "output_opengl.h"
 
+#include "frontend/opengl_shader.h"
+
 #include <array>
 #include <cstdio>
-#include <iterator>
-#include <string>
-#include <fstream>
 
 namespace rtiow {
 
@@ -69,24 +68,7 @@ static GLuint g_texture = GL_INVALID_INDEX;
 static GLuint g_vbo = GL_INVALID_INDEX;
 static GLuint g_ibo = GL_INVALID_INDEX;
 static GLuint g_vao = GL_INVALID_INDEX;
-static GLuint g_vertex_shader = GL_INVALID_INDEX;
-static GLuint g_fragment_shader = GL_INVALID_INDEX;
-static GLuint g_shader = GL_INVALID_INDEX;
-
-void gl_load_shader_source(GLuint shader, const char *file_path) {
-
-	std::ifstream file(file_path);
-	if (!file.is_open()) {
-		fprintf(stderr, "Error opening shader source (%s)\n", file_path);
-		exit(-1);
-	}
-
-	std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-
-	const GLchar *shader_source = content.c_str();
-
-	glShaderSource(shader, 1, &shader_source, nullptr);
-}
+static OpenGLShader g_shader;
 
 void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
 
@@ -124,21 +106,10 @@ void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
     glVertexArrayAttribBinding(g_vao, 1, 0);
 
 	// shaders
-	// >> vertex shader
-	g_vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	gl_load_shader_source(g_vertex_shader, "src/frontend/shaders/vertex.glsl");
-	glCompileShader(g_vertex_shader);
-
-	// >> fragment shader
-	g_fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	gl_load_shader_source(g_fragment_shader, "src/frontend/shaders/fragment_plain.glsl");
-	glCompileShader(g_fragment_shader);
-
-	// >> program
-	g_shader = glCreateProgram();
-	glAttachShader(g_shader, g_vertex_shader);
-	glAttachShader(g_shader, g_fragment_shader);
-	glLinkProgram(g_shader);
+	OpenGLShader::create_from_files(
+						g_shader,
+						"src/frontend/shaders/vertex.glsl",
+						"src/frontend/shaders/fragment_plain.glsl");
 }
 
 void gl_display_fullscreen_quad(const uint8_t *img_data, int32_t resolution_x, int32_t resolution_y) {
@@ -150,7 +121,7 @@ void gl_display_fullscreen_quad(const uint8_t *img_data, int32_t resolution_x, i
 
 	glBindVertexArray(g_vao);
 	glBindTextureUnit(0, g_texture);
-	glUseProgram(g_shader);
+	g_shader.bind();
 	glDrawElements(GL_TRIANGLES, FSQ_INDICES.size(), GL_UNSIGNED_SHORT, nullptr);
 }
 

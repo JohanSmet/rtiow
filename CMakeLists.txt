@@ -98,6 +98,8 @@ add_executable(${FRONTEND_TARGET})
 target_sources(${FRONTEND_TARGET} PRIVATE
 	libs/argh/argh.h
 
+	src/frontend/glsl_smart_denoise.cpp
+	src/frontend/glsl_smart_denoise.h
 	src/frontend/imgui_impl.cpp
 	src/frontend/imgui_impl.h
 	src/frontend/main.cpp

@@ -2,8 +2,11 @@
 #pragma once
 
 #include <raytrace/types.h>
+#include <memory>
 
 namespace rtiow {
+
+namespace gui {
 
 class OpenGLShader {
 public:
@@ -17,7 +20,7 @@ public:
 	OpenGLShader(const OpenGLShader &&) = delete;
 	~OpenGLShader();
 
-	static void create_from_files(OpenGLShader &shader, const char *vertex_filename, const char *fragment_filename);
+	static std::unique_ptr<OpenGLShader> create_from_files(const char *vertex_filename, const char *fragment_filename);
 
 	void bind();
 
@@ -31,6 +34,8 @@ private:
 	uint32_t m_stage_ids[2] = {INVALID, INVALID};
 	uint32_t m_program_id = INVALID;
 };
+
+} // namespace rtiow::gui
 
 } // namespace rtiow
 

@@ -3,6 +3,7 @@
 
 #include "frontend/opengl_uniform_buffer.h"
 #include "frontend/opengl_shader.h"
+#include "glsl_smart_denoise.h"
 
 #include "imgui_impl.h"
 #include <imgui.h>
@@ -21,8 +22,6 @@ static constexpr bool OPENGL_DEBUG = false;
 #else
 static constexpr bool OPENGL_DEBUG = true;
 #endif
-
-static bool g_do_denoise = false;
 
 [[maybe_unused]]
 static void APIENTRY opengl_debug_callback(
@@ -49,8 +48,6 @@ void glfw_error_callback(int error, const char *description) {
 void glfw_key_callback(GLFWwindow *window, int key, [[maybe_unused]] int scancode, int action, [[maybe_unused]] int mods) {
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
-	} else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-		g_do_denoise = !g_do_denoise;
 	}
 }
 
@@ -76,27 +73,6 @@ static GLuint g_texture = GL_INVALID_INDEX;
 static GLuint g_vbo = GL_INVALID_INDEX;
 static GLuint g_ibo = GL_INVALID_INDEX;
 static GLuint g_vao = GL_INVALID_INDEX;
-static OpenGLShader g_shader_plain;
-static OpenGLShader g_shader_denoise;
-static OpenglUniformBuffer g_ubo_glslSmartDeNoise;
-
-// configuration for glslSmartDeNoise
-struct gsdParams {
-	float		uSigma;
-	float		uThreshold;
-	float		uKSigma;
-	float		padding;
-	glm::vec2	wSize;
-};
-
-static gsdParams glslSmartDeNoiseParams = {
-	9.0f,			// sigma
-	0.180f,			// threshold
-	3.0f,			// KSigma
-	0.0f,			// padding
-	{0.0f, 0.0f}	// window size
-};
-
 
 void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
 
@@ -132,44 +108,17 @@ void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
 	glEnableVertexArrayAttrib(g_vao, 1);
     glVertexArrayAttribFormat(g_vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, u));
     glVertexArrayAttribBinding(g_vao, 1, 0);
-
-	// shaders
-	OpenGLShader::create_from_files(
-						g_shader_plain,
-						"src/frontend/shaders/vertex.glsl",
-						"src/frontend/shaders/fragment_plain.glsl");
-
-	OpenGLShader::create_from_files(
-						g_shader_denoise,
-						"src/frontend/shaders/vertex.glsl",
-						"src/frontend/shaders/fragment_denoise.glsl");
-
-	// setup uniform buffer for glslSmartDenoise
-	glslSmartDeNoiseParams.wSize.x = float(resolution_x);
-	glslSmartDeNoiseParams.wSize.y = float(resolution_y);
-
-	g_ubo_glslSmartDeNoise.init(sizeof(gsdParams), 1);
-	g_ubo_glslSmartDeNoise.update(glslSmartDeNoiseParams);
-}
-
-void gl_display_fullscreen_quad(const uint8_t *img_data, int32_t resolution_x, int32_t resolution_y) {
-
-	glTextureSubImage2D(g_texture, 0, 0, 0,
-						GLsizei(resolution_x), GLsizei(resolution_y),
-						GL_RGB, GL_UNSIGNED_BYTE,
-						img_data);
-
-	glBindVertexArray(g_vao);
-	glBindTextureUnit(0, g_texture);
-	if (g_do_denoise) {
-		g_shader_denoise.bind();
-	} else {
-		g_shader_plain.bind();
-	}
-	glDrawElements(GL_TRIANGLES, FSQ_INDICES.size(), GL_UNSIGNED_SHORT, nullptr);
 }
 
 } // unnamed namespace
+
+OutputOpengl::OutputOpengl() {
+	m_window = nullptr;
+	m_filter_gsd = nullptr;
+}
+
+OutputOpengl::~OutputOpengl() {
+}
 
 bool OutputOpengl::setup(int resolution_x, int resolution_y) {
 	m_resolution_x = resolution_x;
@@ -210,8 +159,20 @@ bool OutputOpengl::setup(int resolution_x, int resolution_y) {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
 	}
 
+	// default shader
+	m_default_shader = OpenGLShader::create_from_files(
+							"src/frontend/shaders/vertex.glsl",
+							"src/frontend/shaders/fragment_plain.glsl");
+	m_active_shader = m_default_shader.get();
+
+	// fullscreen drawing
 	gl_setup_fullscreen_quad(m_resolution_x, m_resolution_y);
 
+	// setup uniform buffer for glslSmartDenoise
+	m_filter_gsd = std::make_unique<FilterGlslSmartDeNoise>(this);
+	m_filter_gsd->set_image_size(resolution_x, resolution_y);
+
+	// gui
 	imgui_impl_init(m_window);
 
 	return true;
@@ -224,6 +185,10 @@ void OutputOpengl::teardown() {
 	glfwTerminate();
 }
 
+void OutputOpengl::set_active_shader(OpenGLShader *shader) {
+	m_active_shader = (shader != nullptr) ? shader : m_default_shader.get();
+}
+
 bool OutputOpengl::should_exit() {
 	return glfwWindowShouldClose(m_window);
 }
@@ -232,6 +197,7 @@ void OutputOpengl::display(const uint8_t *img_data) {
 
 	// ui
 	imgui_impl_ui_setup();
+	m_filter_gsd->imgui_config_window();
 	ImGui::ShowDemoWindow();
 
 	imgui_impl_ui_finish();
@@ -243,7 +209,7 @@ void OutputOpengl::display(const uint8_t *img_data) {
 	glClearNamedFramebufferfv(0, GL_COLOR, 0, clear_color);
 
 	// dislay rendered image
-	gl_display_fullscreen_quad(img_data, m_resolution_x, m_resolution_y);
+	draw_fullscreen_image(img_data);
 
 	// display UI
 	imgui_impl_ui_render();
@@ -253,6 +219,22 @@ void OutputOpengl::display(const uint8_t *img_data) {
 
 	// event handling
 	glfwPollEvents();
+}
+
+void OutputOpengl::draw_fullscreen_image(const uint8_t *img_data) {
+
+	assert(m_active_shader);
+
+	glTextureSubImage2D(g_texture, 0, 0, 0,
+						GLsizei(m_resolution_x), GLsizei(m_resolution_y),
+						GL_RGB, GL_UNSIGNED_BYTE,
+						img_data);
+
+	glBindVertexArray(g_vao);
+	glBindTextureUnit(0, g_texture);
+	m_active_shader->bind();
+	glDrawElements(GL_TRIANGLES, FSQ_INDICES.size(), GL_UNSIGNED_SHORT, nullptr);
+
 }
 
 } // namespace rtiow::gui

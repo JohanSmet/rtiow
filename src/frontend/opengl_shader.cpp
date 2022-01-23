@@ -10,6 +10,8 @@
 
 namespace rtiow {
 
+namespace gui {
+
 namespace utils {
 
 static inline void check_and_log_shader_error(uint32_t id, bool program, const char *source = "") {
@@ -51,10 +53,12 @@ OpenGLShader::~OpenGLShader() {
 	}
 }
 
-void OpenGLShader::create_from_files(OpenGLShader &shader, const char *vertex_filename, const char *fragment_filename) {
-	shader.m_stage_ids[0] = compile_stage_from_file(GL_VERTEX_SHADER, vertex_filename);
-	shader.m_stage_ids[1] = compile_stage_from_file(GL_FRAGMENT_SHADER, fragment_filename);
-	shader.m_program_id = link(shader.m_stage_ids[0], shader.m_stage_ids[1]);
+std::unique_ptr<OpenGLShader> OpenGLShader::create_from_files(const char *vertex_filename, const char *fragment_filename) {
+	auto v = compile_stage_from_file(GL_VERTEX_SHADER, vertex_filename);
+	auto f = compile_stage_from_file(GL_FRAGMENT_SHADER, fragment_filename);
+	auto p = link(v, f);
+
+	return std::make_unique<OpenGLShader>(v, f, p);
 }
 
 uint32_t OpenGLShader::compile_stage_from_file(uint32_t shader_stage, const char *filename) {
@@ -89,6 +93,8 @@ uint32_t OpenGLShader::link(uint32_t vertex, uint32_t fragment) {
 void OpenGLShader::bind() {
 	glUseProgram(m_program_id);
 }
+
+} // namespace rtiow::gui
 
 } // rtiow
 

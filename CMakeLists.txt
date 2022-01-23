@@ -41,6 +41,29 @@ add_subdirectory(libs/glfw)
 # external library - OpenGL
 find_package(OpenGL REQUIRED)
 
+# external library - ImGui
+set (IMGUI_TARGET imgui)
+add_library(${IMGUI_TARGET} STATIC)
+target_sources(${IMGUI_TARGET} PRIVATE
+	libs/imgui/imconfig.h
+	libs/imgui/imgui.cpp
+	libs/imgui/imgui_demo.cpp
+	libs/imgui/imgui_draw.cpp
+	libs/imgui/imgui.h
+	libs/imgui/imgui_internal.h
+	libs/imgui/imgui_tables.cpp
+	libs/imgui/imgui_widgets.cpp
+	libs/imgui/imstb_rectpack.h
+	libs/imgui/imstb_textedit.h
+	libs/imgui/imstb_truetype.h
+	libs/imgui/backends/imgui_impl_glfw.cpp
+	libs/imgui/backends/imgui_impl_opengl3.cpp
+)
+target_include_directories(${IMGUI_TARGET} SYSTEM PUBLIC libs/imgui libs/glad)
+target_link_libraries(${IMGUI_TARGET} PUBLIC glfw)
+target_link_libraries(${IMGUI_TARGET} PUBLIC ${GLAD_TARGET})
+target_link_libraries(${IMGUI_TARGET} PUBLIC ${OPENGL_LIBRARIES})
+
 # static library for the raytracer
 set (LIB_TARGET raytrace)
 add_library(${LIB_TARGET} STATIC)
@@ -75,6 +98,8 @@ add_executable(${FRONTEND_TARGET})
 target_sources(${FRONTEND_TARGET} PRIVATE
 	libs/argh/argh.h
 
+	src/frontend/imgui_impl.cpp
+	src/frontend/imgui_impl.h
 	src/frontend/main.cpp
 	src/frontend/opengl_shader.cpp
 	src/frontend/opengl_shader.h
@@ -86,7 +111,5 @@ target_sources(${FRONTEND_TARGET} PRIVATE
 target_include_directories(${FRONTEND_TARGET} PRIVATE libs)
 target_link_libraries(${FRONTEND_TARGET} PRIVATE ${LIB_TARGET})
 target_link_libraries(${FRONTEND_TARGET} PRIVATE ${CMAKE_DL_LIBS})
-target_link_libraries(${FRONTEND_TARGET} PRIVATE ${GLAD_TARGET})
-target_link_libraries(${FRONTEND_TARGET} PRIVATE ${OPENGL_LIBRARIES})
-target_link_libraries(${FRONTEND_TARGET} PRIVATE glfw)
+target_link_libraries(${FRONTEND_TARGET} PRIVATE ${IMGUI_TARGET})
 target_compile_warning(${FRONTEND_TARGET})

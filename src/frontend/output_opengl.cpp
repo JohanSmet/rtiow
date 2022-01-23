@@ -4,6 +4,9 @@
 #include "frontend/opengl_uniform_buffer.h"
 #include "frontend/opengl_shader.h"
 
+#include "imgui_impl.h"
+#include <imgui.h>
+
 #include <array>
 #include <cstdio>
 
@@ -207,12 +210,16 @@ bool OutputOpengl::setup(int resolution_x, int resolution_y) {
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, true);
 	}
 
-	rtiow::gui::gl_setup_fullscreen_quad(m_resolution_x, m_resolution_y);
+	gl_setup_fullscreen_quad(m_resolution_x, m_resolution_y);
+
+	imgui_impl_init(m_window);
 
 	return true;
 }
 
 void OutputOpengl::teardown() {
+	imgui_impl_teardown();
+
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
@@ -223,6 +230,12 @@ bool OutputOpengl::should_exit() {
 
 void OutputOpengl::display(const uint8_t *img_data) {
 
+	// ui
+	imgui_impl_ui_setup();
+	ImGui::ShowDemoWindow();
+
+	imgui_impl_ui_finish();
+
 	 // setup rendering
 	constexpr float clear_color[4] = {0.3f, 0.3f, 0.3f, 1.0f};
 	glClipControl(GL_LOWER_LEFT, GL_NEGATIVE_ONE_TO_ONE);
@@ -230,7 +243,10 @@ void OutputOpengl::display(const uint8_t *img_data) {
 	glClearNamedFramebufferfv(0, GL_COLOR, 0, clear_color);
 
 	// dislay rendered image
-	rtiow::gui::gl_display_fullscreen_quad(img_data, m_resolution_x, m_resolution_y);
+	gl_display_fullscreen_quad(img_data, m_resolution_x, m_resolution_y);
+
+	// display UI
+	imgui_impl_ui_render();
 
 	// present
 	glfwSwapBuffers(m_window);

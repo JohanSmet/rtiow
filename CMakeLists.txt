@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.12)
 
 project(rtiow)
 
-# force C++20 for all targets
-set(CMAKE_CXX_STANDARD 20)
+# force C++17 for all targets
+set(CMAKE_CXX_STANDARD 17)
 
 # export a JSON compilation database for clangd
 set (CMAKE_EXPORT_COMPILE_COMMANDS TRUE)

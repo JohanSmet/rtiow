@@ -146,7 +146,7 @@ void RayTracer::render(Scene &scene) {
 			auto x1 = std::min(m_config.m_render_resolution_x, x0 + CHUNK_SIZE);
 			auto y1 = std::min(m_config.m_render_resolution_y, y0 + CHUNK_SIZE);
 
-			m_thread_pool->add_task([=, &scene, this] () {
+			m_thread_pool->add_task([=, &scene] () {
 				for (uint32_t y = y0; y < y1; ++y) {
 					uint8_t *out = m_output->data() + (3 * (y * m_config.m_render_resolution_x + x0));
 

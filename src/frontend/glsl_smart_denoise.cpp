@@ -12,7 +12,7 @@ namespace rtiow {
 
 namespace gui {
 
-FilterGlslSmartDeNoise::FilterGlslSmartDeNoise(OutputOpengl *output) :
+FilterGlslSmartDeNoise::FilterGlslSmartDeNoise(OutputOpenGL *output) :
 	m_output(output),
 	m_enabled(false),
 	m_parameters {

@@ -141,7 +141,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	// create output window
-	rtiow::gui::OutputOpengl window;
+	rtiow::gui::OutputOpenGL window;
 	window.setup(int32_t(raytracer_config.m_render_resolution_x), int32_t(raytracer_config.m_render_resolution_y));
 
 	// kick of renderer

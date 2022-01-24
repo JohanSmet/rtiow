@@ -50,15 +50,15 @@ void glfw_key_callback(GLFWwindow *window, int key, [[maybe_unused]] int scancod
 
 } // unnamed namespace
 
-OutputOpengl::OutputOpengl() {
+OutputOpenGL::OutputOpenGL() {
 	m_window = nullptr;
 	m_filter_gsd = nullptr;
 }
 
-OutputOpengl::~OutputOpengl() {
+OutputOpenGL::~OutputOpenGL() {
 }
 
-bool OutputOpengl::setup(int resolution_x, int resolution_y) {
+bool OutputOpenGL::setup(int resolution_x, int resolution_y) {
 	m_resolution_x = resolution_x;
 	m_resolution_y = resolution_y;
 
@@ -116,22 +116,22 @@ bool OutputOpengl::setup(int resolution_x, int resolution_y) {
 	return true;
 }
 
-void OutputOpengl::teardown() {
+void OutputOpenGL::teardown() {
 	imgui_impl_teardown();
 
 	glfwDestroyWindow(m_window);
 	glfwTerminate();
 }
 
-void OutputOpengl::set_active_shader(OpenGLShader *shader) {
+void OutputOpenGL::set_active_shader(OpenGLShader *shader) {
 	m_active_shader = (shader != nullptr) ? shader : m_default_shader.get();
 }
 
-bool OutputOpengl::should_exit() {
+bool OutputOpenGL::should_exit() {
 	return glfwWindowShouldClose(m_window);
 }
 
-void OutputOpengl::display(const uint8_t *img_data) {
+void OutputOpenGL::display(const uint8_t *img_data) {
 
 	// ui
 	imgui_impl_ui_setup();

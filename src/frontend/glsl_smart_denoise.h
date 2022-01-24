@@ -11,7 +11,7 @@ namespace gui {
 class FilterGlslSmartDeNoise {
 public:
 	// construction
-	FilterGlslSmartDeNoise(class OutputOpengl *output);
+	FilterGlslSmartDeNoise(class OutputOpenGL *output);
 	FilterGlslSmartDeNoise(const FilterGlslSmartDeNoise &) = delete;
 	FilterGlslSmartDeNoise(const FilterGlslSmartDeNoise &&) = delete;
 	FilterGlslSmartDeNoise &operator=(const FilterGlslSmartDeNoise &) = delete;
@@ -30,10 +30,10 @@ private:
 	};
 
 private:
-	class OutputOpengl *	m_output;
+	class OutputOpenGL *	m_output;
 	bool					m_enabled;
 	params_t				m_parameters;
-	OpenglUniformBuffer		m_ubo_parameters;
+	OpenGLUniformBuffer		m_ubo_parameters;
 
 	std::unique_ptr<class OpenGLShader>		m_shader;
 };

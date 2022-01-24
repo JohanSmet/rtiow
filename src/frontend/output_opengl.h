@@ -14,14 +14,14 @@ namespace rtiow {
 
 namespace gui {
 
-class OutputOpengl {
+class OutputOpenGL {
 public:
 	// construction
-	OutputOpengl();
-	OutputOpengl(const OutputOpengl &) = delete;
-	OutputOpengl(const OutputOpengl &&) = delete;
-	OutputOpengl &operator=(const OutputOpengl &) = delete;
-	~OutputOpengl();
+	OutputOpenGL();
+	OutputOpenGL(const OutputOpenGL &) = delete;
+	OutputOpenGL(const OutputOpenGL &&) = delete;
+	OutputOpenGL &operator=(const OutputOpenGL &) = delete;
+	~OutputOpenGL();
 
 	bool setup(int resolution_x, int resolution_y);
 	void teardown();

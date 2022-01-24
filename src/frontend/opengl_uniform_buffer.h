@@ -5,11 +5,11 @@
 
 namespace rtiow {
 
-class OpenglUniformBuffer {
+class OpenGLUniformBuffer {
 public:
 	// construction
-	OpenglUniformBuffer() = default;
-	~OpenglUniformBuffer();
+	OpenGLUniformBuffer() = default;
+	~OpenGLUniformBuffer();
 
 	void init(size_t buffer_size, uint32_t binding);
 

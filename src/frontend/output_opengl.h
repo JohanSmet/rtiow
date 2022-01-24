@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "opengl_display_image.h"
+
 namespace rtiow {
 
 namespace gui {
@@ -29,10 +31,6 @@ public:
 	void display(const uint8_t *img_data);
 
 private:
-	void draw_fullscreen_image(const uint8_t *img_data);
-
-
-private:
 	int m_resolution_x;
 	int m_resolution_y;
 
@@ -40,6 +38,7 @@ private:
 
 	std::unique_ptr<class OpenGLShader>				m_default_shader;
 	std::unique_ptr<class FilterGlslSmartDeNoise>	m_filter_gsd;
+	OpenGLDisplayImage								m_img_display;
 
 	class OpenGLShader *							m_active_shader;
 };

@@ -103,6 +103,8 @@ target_sources(${FRONTEND_TARGET} PRIVATE
 	src/frontend/imgui_impl.cpp
 	src/frontend/imgui_impl.h
 	src/frontend/main.cpp
+	src/frontend/opengl_display_image.cpp
+	src/frontend/opengl_display_image.h
 	src/frontend/opengl_shader.cpp
 	src/frontend/opengl_shader.h
 	src/frontend/opengl_uniform_buffer.cpp

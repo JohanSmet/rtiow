@@ -1,18 +1,15 @@
 // frontend/output_opengl.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 #include "output_opengl.h"
 
-#include "frontend/opengl_uniform_buffer.h"
 #include "frontend/opengl_shader.h"
 #include "glsl_smart_denoise.h"
 
 #include "imgui_impl.h"
 #include <imgui.h>
 
-#include <array>
 #include <cstdio>
 
 namespace rtiow {
-
 namespace gui {
 
 namespace {
@@ -49,65 +46,6 @@ void glfw_key_callback(GLFWwindow *window, int key, [[maybe_unused]] int scancod
 	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
 		glfwSetWindowShouldClose(window, GLFW_TRUE);
 	}
-}
-
-// full screen quad
-struct Vertex {
-	float x, y, z;      // position
-	float u, v;			// texture coordinates
-};
-
-static constexpr std::array<Vertex, 4> FSQ_VERTICES {
-	Vertex{ 1.0f,  1.0f, 0.0f, 1.0f, 1.0f},
-	Vertex{ 1.0f, -1.0f, 0.0f, 1.0f, 0.0f},
-	Vertex{-1.0f, -1.0f, 0.0f, 0.0f, 0.0f},
-	Vertex{-1.0f,  1.0f, 0.0f, 0.0f, 1.0f}
-};
-
-static constexpr std::array<uint16_t, 6> FSQ_INDICES {
-	0, 1, 3,
-	1, 2, 3
-};
-
-static GLuint g_texture = GL_INVALID_INDEX;
-static GLuint g_vbo = GL_INVALID_INDEX;
-static GLuint g_ibo = GL_INVALID_INDEX;
-static GLuint g_vao = GL_INVALID_INDEX;
-
-void gl_setup_fullscreen_quad(int32_t resolution_x, int32_t resolution_y) {
-
-	// create texture
-	glCreateTextures(GL_TEXTURE_2D, 1, &g_texture);
-	glTextureStorage2D(g_texture, 1, GL_RGB8, GLsizei(resolution_x), GLsizei(resolution_y));
-	glTextureParameteri(g_texture, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTextureParameteri(g_texture, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	// vertex array
-	// >> create and fill vertex buffer
-	glCreateBuffers(1, &g_vbo);
-	glNamedBufferData(g_vbo, sizeof(Vertex) * FSQ_VERTICES.size(), FSQ_VERTICES.data(), GL_STATIC_DRAW);
-
-	// create and fill index buffer
-	glCreateBuffers(1, &g_ibo);
-	glNamedBufferData(g_ibo, sizeof(uint16_t) * FSQ_INDICES.size(), FSQ_INDICES.data(), GL_STATIC_DRAW);
-
-	// create vertex array
-	glCreateVertexArrays(1, &g_vao);
-
-	// bind the vertex buffer at binding point 0
-	glVertexArrayVertexBuffer(g_vao, 0, g_vbo, 0, sizeof(Vertex));
-
-	// bind the index buffer
-	glVertexArrayElementBuffer(g_vao, g_ibo);
-
-	// setup vertex attributes
-	glEnableVertexArrayAttrib(g_vao, 0);
-	glVertexArrayAttribFormat(g_vao, 0, 3, GL_FLOAT, GL_FALSE, offsetof(Vertex, x));
-	glVertexArrayAttribBinding(g_vao, 0, 0);
-
-	glEnableVertexArrayAttrib(g_vao, 1);
-    glVertexArrayAttribFormat(g_vao, 1, 2, GL_FLOAT, GL_FALSE, offsetof(Vertex, u));
-    glVertexArrayAttribBinding(g_vao, 1, 0);
 }
 
 } // unnamed namespace
@@ -165,8 +103,8 @@ bool OutputOpengl::setup(int resolution_x, int resolution_y) {
 							"src/frontend/shaders/fragment_plain.glsl");
 	m_active_shader = m_default_shader.get();
 
-	// fullscreen drawing
-	gl_setup_fullscreen_quad(m_resolution_x, m_resolution_y);
+	// fullscreen image drawing
+	m_img_display.init(m_resolution_x, m_resolution_y);
 
 	// setup uniform buffer for glslSmartDenoise
 	m_filter_gsd = std::make_unique<FilterGlslSmartDeNoise>(this);
@@ -209,7 +147,7 @@ void OutputOpengl::display(const uint8_t *img_data) {
 	glClearNamedFramebufferfv(0, GL_COLOR, 0, clear_color);
 
 	// dislay rendered image
-	draw_fullscreen_image(img_data);
+	m_img_display.display(img_data, m_active_shader);
 
 	// display UI
 	imgui_impl_ui_render();
@@ -221,22 +159,5 @@ void OutputOpengl::display(const uint8_t *img_data) {
 	glfwPollEvents();
 }
 
-void OutputOpengl::draw_fullscreen_image(const uint8_t *img_data) {
-
-	assert(m_active_shader);
-
-	glTextureSubImage2D(g_texture, 0, 0, 0,
-						GLsizei(m_resolution_x), GLsizei(m_resolution_y),
-						GL_RGB, GL_UNSIGNED_BYTE,
-						img_data);
-
-	glBindVertexArray(g_vao);
-	glBindTextureUnit(0, g_texture);
-	m_active_shader->bind();
-	glDrawElements(GL_TRIANGLES, FSQ_INDICES.size(), GL_UNSIGNED_SHORT, nullptr);
-
-}
-
 } // namespace rtiow::gui
-
 } // namespace rtiow

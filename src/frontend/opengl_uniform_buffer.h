@@ -4,6 +4,7 @@
 #include <raytrace/types.h>
 
 namespace rtiow {
+namespace gui {
 
 class OpenGLUniformBuffer {
 public:
@@ -26,5 +27,6 @@ private:
 	uint32_t m_id = INVALID;
 };
 
+} // namespace rtiow::gui
 } // namespace rtiow
 

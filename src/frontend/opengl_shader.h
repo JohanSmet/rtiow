@@ -2,10 +2,8 @@
 #pragma once
 
 #include <raytrace/types.h>
-#include <memory>
 
 namespace rtiow {
-
 namespace gui {
 
 class OpenGLShader {
@@ -36,6 +34,5 @@ private:
 };
 
 } // namespace rtiow::gui
-
 } // namespace rtiow
 

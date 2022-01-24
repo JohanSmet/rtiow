@@ -3,15 +3,11 @@
 #pragma once
 
 #include <raytrace/types.h>
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-
-#include <memory>
-
 #include "opengl_display_image.h"
 
-namespace rtiow {
+struct GLFWwindow;
 
+namespace rtiow {
 namespace gui {
 
 class OutputOpenGL {
@@ -45,5 +41,4 @@ private:
 
 
 } // namespace rtiow::gui
-
 } // namespace rtiow

@@ -1,11 +1,13 @@
 // frontend/output_opengl.cpp - Johan Smet - BSD-3-Clause (see LICENSE)
 #include "output_opengl.h"
 
-#include "frontend/opengl_shader.h"
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
+#include "opengl_shader.h"
 #include "glsl_smart_denoise.h"
 
 #include "imgui_impl.h"
-#include <imgui.h>
 
 #include <cstdio>
 
@@ -50,9 +52,13 @@ void glfw_key_callback(GLFWwindow *window, int key, [[maybe_unused]] int scancod
 
 } // unnamed namespace
 
-OutputOpenGL::OutputOpenGL() {
-	m_window = nullptr;
-	m_filter_gsd = nullptr;
+OutputOpenGL::OutputOpenGL() :
+		m_resolution_x(0),
+		m_resolution_y(0),
+		m_window(nullptr),
+		m_default_shader(nullptr),
+		m_filter_gsd(nullptr),
+		m_active_shader(nullptr) {
 }
 
 OutputOpenGL::~OutputOpenGL() {
@@ -136,8 +142,6 @@ void OutputOpenGL::display(const uint8_t *img_data) {
 	// ui
 	imgui_impl_ui_setup();
 	m_filter_gsd->imgui_config_window();
-	ImGui::ShowDemoWindow();
-
 	imgui_impl_ui_finish();
 
 	 // setup rendering

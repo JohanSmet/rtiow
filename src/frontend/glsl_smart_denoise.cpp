@@ -2,14 +2,13 @@
 
 #include "glsl_smart_denoise.h"
 
-#include "raytrace/glm.h"
+#include <raytrace/glm.h>
 #include "output_opengl.h"
 #include "opengl_shader.h"
 
 #include <imgui.h>
 
 namespace rtiow {
-
 namespace gui {
 
 FilterGlslSmartDeNoise::FilterGlslSmartDeNoise(OutputOpenGL *output) :
@@ -77,5 +76,4 @@ void FilterGlslSmartDeNoise::imgui_config_window() {
 }
 
 } // namespace rtiow::gui
-
 } // namespace rtiow

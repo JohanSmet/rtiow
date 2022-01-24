@@ -9,7 +9,6 @@
 #include <fstream>
 
 namespace rtiow {
-
 namespace gui {
 
 namespace utils {
@@ -95,6 +94,5 @@ void OpenGLShader::bind() {
 }
 
 } // namespace rtiow::gui
-
 } // rtiow
 

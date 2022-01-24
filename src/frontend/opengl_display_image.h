@@ -4,7 +4,6 @@
 #include <raytrace/types.h>
 
 namespace rtiow {
-
 namespace gui {
 
 class OpenGLDisplayImage {
@@ -33,5 +32,4 @@ private:
 
 
 } // namespace rtiow::gui
-
 } // namespace rtiow

@@ -5,7 +5,6 @@
 #include "opengl_uniform_buffer.h"
 
 namespace rtiow {
-
 namespace gui {
 
 class FilterGlslSmartDeNoise {
@@ -39,5 +38,4 @@ private:
 };
 
 } // namespace rtiow::gui
-
 } // namespace rtiow

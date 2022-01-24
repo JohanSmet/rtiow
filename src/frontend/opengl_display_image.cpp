@@ -7,7 +7,6 @@
 #include <array>
 
 namespace rtiow {
-
 namespace gui {
 
 namespace {
@@ -86,5 +85,4 @@ void OpenGLDisplayImage::display(const uint8_t *img_data, OpenGLShader *shader) 
 }
 
 } // namespace rtiow::gui
-
 } // namespace rtiow

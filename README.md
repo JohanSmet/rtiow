@@ -6,8 +6,9 @@ Or, more accurately, ray tracing in a spare hour here and there. Seemed like a f
 
 Nothing really special here, I followed the book quite closely but I tried to avoid using inheritance hierarchies and virtual functions. I don't have multiple material classes, just one that has parameters to control the amount of diffuse/specular reflection and refraction (inspired by articles on [The blog at the bottom of the sea](https://blog.demofox.org/2020/06/14/casual-shadertoy-path-tracing-3-fresnel-rough-refraction-absorption-orbit-camera/)).
 
+Uses [glslSmartDeNoise](https://github.com/BrutPitt/glslSmartDeNoise) to do a denoise post-processing step on the rendered image.
+
 ## Future Goals
-- Add some kind of denoising.
 - Reimplement the ray tracer to run entirely on the GPU (vulkan, glsl)
 
 ## Building

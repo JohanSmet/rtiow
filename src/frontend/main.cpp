@@ -1,6 +1,7 @@
 #include <chrono>
 #include <initializer_list>
 #include <thread>
+#include <cstdio>
 
 #include <raytrace/raytrace.h>
 #include <raytrace/utils.h>
@@ -21,6 +22,7 @@ static constexpr argh_list_t ARG_RENDER_WORKERS = {"-w", "--render-workers"};
 static constexpr argh_list_t ARG_THREADS_IGNORE = {"--threads-ignore"};
 static constexpr argh_list_t ARG_THREADS_PERCENT = {"--threads-percentage"};
 static constexpr argh_list_t ARG_SCENE = {"--scene"};
+static constexpr argh_list_t ARG_HELP = {"-h", "--help"};
 
 static rtiow::RayTracerConfig raytracer_config;
 
@@ -103,6 +105,40 @@ void construct_scene_02(Scene &scene) {
 	);
 }
 
+std::string format_argh_list(const argh_list_t &args) {
+	std::string result;
+	const char *sepa = "";
+
+	for (const auto &a : args) {
+		result.append(sepa);
+		result.append(a);
+		sepa = ", ";
+	}
+
+	return result;
+}
+
+void print_help() {
+	printf("Usage:\n\n");
+	printf("rtiow_gl [options]\n\n");
+	printf("Options\n");
+	printf(" %-25s set horizontal resolution in pixels of output (%d)\n",
+			format_argh_list(ARG_RESOLUTION_X).c_str(), raytracer_config.m_render_resolution_x);
+	printf(" %-25s set vertical resolution in pixels of output (%d)\n",
+			format_argh_list(ARG_RESOLUTION_Y).c_str(), raytracer_config.m_render_resolution_y);
+	printf(" %-25s number of sample points per pixel (%d)\n",
+			format_argh_list(ARG_SAMPLES_PER_PIXEL).c_str(), raytracer_config.m_samples_per_pixel);
+	printf(" %-25s maximum number of ray-bounces (%d)\n",
+			format_argh_list(ARG_MAX_RAY_BOUNCES).c_str(), raytracer_config.m_max_ray_bounces);
+	printf(" %-25s id of the scene to render [(1),2]\n", format_argh_list(ARG_SCENE).c_str());
+	printf(" %-25s manually set number of render threads (0 = use available hardware threads)\n",
+			format_argh_list(ARG_RENDER_WORKERS).c_str());
+	printf(" %-25s number of hardware threads to ignore and leave available for others (%d)\n",
+			format_argh_list(ARG_THREADS_IGNORE).c_str(), raytracer_config.m_threads_ignore);
+	printf(" %-25s percentage of available (non-ignored) hardware threads to use (%d)\n",
+			format_argh_list(ARG_THREADS_PERCENT).c_str(), raytracer_config.m_threads_use_percent);
+}
+
 } // namespace rtiow
 
 int main(int argc, char *argv[]) {
@@ -117,7 +153,13 @@ int main(int argc, char *argv[]) {
 	cmd_line.add_params(ARG_THREADS_IGNORE);
 	cmd_line.add_params(ARG_THREADS_PERCENT);
 	cmd_line.add_params(ARG_SCENE);
+	cmd_line.add_params(ARG_HELP);
 	cmd_line.parse(argc, argv);
+
+	if (cmd_line[ARG_HELP]) {
+		rtiow::print_help();
+		exit(EXIT_SUCCESS);
+	}
 
 	// fill out configuration structure
 	cmd_line(ARG_RESOLUTION_X, raytracer_config.m_render_resolution_x) >> raytracer_config.m_render_resolution_x;
